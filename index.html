@@ -183,58 +183,40 @@
   }
   .stars { color: #F59E0B; letter-spacing: 1px; }
 
-  /* iPhone mockup */
+  /* Hero visual */
   .hero-visual {
-    position: relative;
     flex-shrink: 0;
-  }
-  .iphone-frame {
-    width: 260px;
-    background: var(--text);
-    border-radius: 42px;
-    padding: 14px;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.08);
-    position: relative;
-  }
-  .iphone-screen {
-    background: var(--blue-light);
-    border-radius: 30px;
-    overflow: hidden;
-    aspect-ratio: 9/19.5;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px;
-    padding: 24px;
-  }
-  .iphone-screen img.app-icon-big {
-    width: 80px; height: 80px;
-    border-radius: 18px;
-    box-shadow: 0 8px 24px rgba(21,101,192,0.3);
-  }
-  .iphone-screen-label {
-    text-align: center;
-  }
-  .iphone-screen-label p {
-    font-size: 15px; font-weight: 700; color: var(--blue-dark);
-    margin-bottom: 4px;
-  }
-  .iphone-screen-label span {
-    font-size: 12px; color: var(--text-sec);
-  }
-  /* Screenshot gallery — показывается если есть скриншоты */
-  .screen-img {
+    max-width: 520px;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none; /* показать когда добавятся настоящие скриншоты */
   }
-  .iphone-notch {
-    position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
-    width: 80px; height: 26px;
-    background: var(--text);
-    border-radius: 13px;
-    z-index: 10;
+  .hero-visual img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+    display: block;
   }
+
+  /* Trust badges */
+  .trust-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 32px;
+  }
+  .badge-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .badge-item .badge-icon { font-size: 15px; }
 
   /* ── STATS ── */
   .stats-bar {
@@ -327,14 +309,13 @@
   .screenshots-row::-webkit-scrollbar { display: none; }
   .screenshot-frame {
     flex-shrink: 0;
-    width: 200px;
-    background: var(--text);
-    border-radius: 32px; padding: 10px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+    width: 220px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   }
   .screenshot-frame img {
-    width: 100%; border-radius: 24px;
-    display: block;
+    width: 100%; display: block;
   }
   .screenshot-placeholder {
     width: 100%;
@@ -457,25 +438,17 @@
       </a>
       <a href="#how-it-works" class="btn-hero btn-hero-ghost">See how it works</a>
     </div>
-    <div class="hero-meta">
-      <div class="meta-item"><span class="stars">★★★★½</span> 4.5 on App Store</div>
-      <div class="meta-item">✓ Free to download</div>
-      <div class="meta-item">✓ No signup required</div>
+    <div class="trust-badges">
+      <div class="badge-item"><span class="badge-icon">⭐</span> 4.5 on App Store</div>
+      <div class="badge-item"><span class="badge-icon">🏆</span> #1 Estimating App</div>
+      <div class="badge-item"><span class="badge-icon">📲</span> Free to Download</div>
+      <div class="badge-item"><span class="badge-icon">🔒</span> No Signup Required</div>
+      <div class="badge-item"><span class="badge-icon">🌎</span> 12 Languages</div>
     </div>
   </div>
 
   <div class="hero-visual">
-    <div class="iphone-frame">
-      <div class="iphone-notch"></div>
-      <div class="iphone-screen">
-        <img src="images/icon.png" alt="App icon" class="app-icon-big">
-        <div class="iphone-screen-label">
-          <p>Cost Estimator</p>
-          <p style="font-size:13px;color:#1565C0;font-weight:600;">Construction+</p>
-          <span>AI-powered estimates</span>
-        </div>
-      </div>
-    </div>
+    <img src="images/hero.png" alt="Contractor scanning bathroom renovation with AI estimator app">
   </div>
 </section>
 

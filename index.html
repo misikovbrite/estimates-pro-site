@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estimates Pro — AI Construction Estimator App</title>
+<meta name="description" content="Turn any job site photo into a professional estimate in seconds. AI-powered cost estimator for contractors, electricians, plumbers and handymen.">
+<link rel="icon" type="image/png" href="images/icon.png">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue:        #1565C0;
+    --blue-dark:   #0D47A1;
+    --blue-light:  #E3F2FD;
+    --blue-mid:    #1976D2;
+    --bg:          #FAFAFA;
+    --white:       #ffffff;
+    --text:        #1C1C1E;
+    --text-sec:    #6E6E73;
+    --border:      #E5E7EB;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    height: 68px;
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 19px; font-weight: 800;
+    color: var(--text); letter-spacing: -0.4px;
+    text-decoration: none;
+  }
+  .nav-logo img {
+    width: 34px; height: 34px; border-radius: 8px;
+  }
+  .nav-logo span { color: var(--blue); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .nav-link {
+    font-size: 14px; font-weight: 500;
+    color: var(--text-sec); text-decoration: none;
+    padding: 8px 12px; border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-link:hover { background: var(--blue-light); color: var(--blue); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px; border-radius: 8px;
+    font-size: 14px; font-weight: 700;
+    text-decoration: none; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent; color: var(--blue);
+    border: 1.5px solid var(--blue);
+  }
+  .btn-outline:hover { background: var(--blue-light); }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 88px 48px 80px;
+    background: linear-gradient(160deg, var(--blue-light) 0%, var(--white) 55%);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 64px;
+    flex-wrap: wrap;
+  }
+  .hero-text { max-width: 540px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--white);
+    border: 1.5px solid rgba(21,101,192,0.3);
+    color: var(--blue);
+    padding: 5px 14px; border-radius: 50px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 5.5vw, 60px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.06;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  .hero h1 em { font-style: normal; color: var(--blue); }
+  .hero-sub {
+    font-size: 18px; color: var(--text-sec);
+    line-height: 1.6; margin-bottom: 36px;
+  }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-hero {
+    padding: 14px 28px; border-radius: 10px;
+    font-size: 15px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 10px;
+    text-decoration: none; transition: all 0.15s;
+  }
+  .btn-hero-primary {
+    background: var(--blue); color: #fff;
+    box-shadow: 0 4px 20px rgba(21,101,192,0.3);
+  }
+  .btn-hero-primary:hover { background: var(--blue-dark); transform: translateY(-2px); }
+  .btn-hero-ghost {
+    background: transparent; color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-hero-ghost:hover { border-color: var(--blue); color: var(--blue); }
+  .hero-meta {
+    margin-top: 28px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--text-sec); font-weight: 500;
+  }
+  .stars { color: #F59E0B; letter-spacing: 1px; }
+
+  /* iPhone mockup */
+  .hero-visual {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .iphone-frame {
+    width: 260px;
+    background: var(--text);
+    border-radius: 42px;
+    padding: 14px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .iphone-screen {
+    background: var(--blue-light);
+    border-radius: 30px;
+    overflow: hidden;
+    aspect-ratio: 9/19.5;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px;
+    padding: 24px;
+  }
+  .iphone-screen img.app-icon-big {
+    width: 80px; height: 80px;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(21,101,192,0.3);
+  }
+  .iphone-screen-label {
+    text-align: center;
+  }
+  .iphone-screen-label p {
+    font-size: 15px; font-weight: 700; color: var(--blue-dark);
+    margin-bottom: 4px;
+  }
+  .iphone-screen-label span {
+    font-size: 12px; color: var(--text-sec);
+  }
+  /* Screenshot gallery — показывается если есть скриншоты */
+  .screen-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none; /* показать когда добавятся настоящие скриншоты */
+  }
+  .iphone-notch {
+    position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 26px;
+    background: var(--text);
+    border-radius: 13px;
+    z-index: 10;
+  }
+
+  /* ── STATS ── */
+  .stats-bar {
+    background: var(--blue-dark);
+    padding: 44px 48px;
+    display: flex; justify-content: center;
+    gap: 64px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 42px; font-weight: 900;
+    letter-spacing: -1.5px; line-height: 1;
+    color: #fff; margin-bottom: 6px;
+  }
+  .stat-num em { font-style: normal; color: #90CAF9; }
+  .stat-label { font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 500; }
+
+  /* ── SECTIONS ── */
+  .section { padding: 80px 48px; }
+  .section-inner { max-width: 1080px; margin: 0 auto; }
+  .bg-light { background: var(--bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .section-tag {
+    display: inline-block; color: var(--blue);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .section h2 {
+    font-size: clamp(26px, 3.5vw, 42px);
+    font-weight: 800; letter-spacing: -1.2px;
+    line-height: 1.1; color: var(--text);
+    margin-bottom: 10px;
+  }
+  .section-desc {
+    font-size: 17px; color: var(--text-sec);
+    max-width: 520px; line-height: 1.6;
+    margin-bottom: 52px;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .step { background: var(--white); padding: 36px 32px; }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--blue-light); color: var(--blue);
+    font-size: 18px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+  }
+  .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .step p { font-size: 14px; color: var(--text-sec); line-height: 1.65; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .feature-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .feature-card:hover {
+    border-color: rgba(21,101,192,0.4);
+    box-shadow: 0 4px 20px rgba(21,101,192,0.08);
+  }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--blue-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { font-size: 14px; color: var(--text-sec); line-height: 1.65; }
+
+  /* ── SCREENSHOTS ── */
+  .screenshots-row {
+    display: flex; gap: 16px;
+    overflow-x: auto; padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+  .screenshots-row::-webkit-scrollbar { display: none; }
+  .screenshot-frame {
+    flex-shrink: 0;
+    width: 200px;
+    background: var(--text);
+    border-radius: 32px; padding: 10px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+  }
+  .screenshot-frame img {
+    width: 100%; border-radius: 24px;
+    display: block;
+  }
+  .screenshot-placeholder {
+    width: 100%;
+    aspect-ratio: 9/19.5;
+    background: var(--blue-light);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--blue); font-size: 12px; font-weight: 600; text-align: center;
+    padding: 16px;
+  }
+
+  /* ── TRADES ── */
+  .trades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 14px;
+  }
+  .trade-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 12px;
+    text-align: center; cursor: default;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .trade-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 4px 16px rgba(21,101,192,0.1);
+  }
+  .trade-icon { font-size: 28px; margin-bottom: 10px; }
+  .trade-card p { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .testimonial {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+  }
+  .t-stars { color: #F59E0B; font-size: 15px; margin-bottom: 14px; }
+  .t-text { font-size: 15px; color: var(--text); line-height: 1.65; margin-bottom: 20px; font-style: italic; }
+  .t-author { font-size: 14px; font-weight: 700; color: var(--text); }
+  .t-role { font-size: 12px; color: var(--text-sec); }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+    padding: 88px 48px; text-align: center;
+  }
+  .final-cta h2 {
+    font-size: clamp(28px, 4vw, 50px);
+    font-weight: 900; letter-spacing: -1.5px;
+    color: #fff; margin-bottom: 16px; line-height: 1.1;
+  }
+  .final-cta p { color: rgba(255,255,255,0.65); font-size: 17px; margin-bottom: 40px; }
+  .btn-white {
+    background: #fff; color: var(--blue);
+    padding: 15px 32px; border-radius: 10px;
+    font-size: 15px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 10px;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    transition: all 0.15s;
+  }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--text);
+    padding: 28px 48px;
+    display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  footer p { font-size: 13px; color: rgba(255,255,255,0.35); }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { font-size: 13px; color: rgba(255,255,255,0.45); text-decoration: none; }
+  .footer-links a:hover { color: #fff; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .hero { padding: 60px 20px 52px; flex-direction: column; text-align: center; }
+    .hero-btns { justify-content: center; }
+    .hero-meta { justify-content: center; }
+    .section { padding: 60px 20px; }
+    .stats-bar { gap: 36px; padding: 36px 20px; }
+    .steps { grid-template-columns: 1fr; }
+    footer { flex-direction: column; text-align: center; padding: 24px 20px; }
+    .nav-link { display: none; }
+    .final-cta { padding: 60px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="images/icon.png" alt="Estimates Pro icon">
+    Estimates<span>Pro</span>
+  </a>
+  <div class="nav-right">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#trades" class="nav-link">Trades</a>
+    <a href="https://apps.apple.com/us/app/cost-estimator-construction/id6758105341" class="btn btn-primary">
+      Download Free
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-badge">⚡ AI-Powered · iPhone App</div>
+    <h1>Quote faster.<br><em>Win more jobs.</em></h1>
+    <p class="hero-sub">Snap a job site photo and get a detailed cost estimate in seconds — with accurate local labor & material pricing.</p>
+    <div class="hero-btns">
+      <a href="https://apps.apple.com/us/app/cost-estimator-construction/id6758105341" class="btn-hero btn-hero-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Download on App Store
+      </a>
+      <a href="#how-it-works" class="btn-hero btn-hero-ghost">See how it works</a>
+    </div>
+    <div class="hero-meta">
+      <div class="meta-item"><span class="stars">★★★★½</span> 4.5 on App Store</div>
+      <div class="meta-item">✓ Free to download</div>
+      <div class="meta-item">✓ No signup required</div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="iphone-frame">
+      <div class="iphone-notch"></div>
+      <div class="iphone-screen">
+        <img src="images/icon.png" alt="App icon" class="app-icon-big">
+        <div class="iphone-screen-label">
+          <p>Cost Estimator</p>
+          <p style="font-size:13px;color:#1565C0;font-weight:600;">Construction+</p>
+          <span>AI-powered estimates</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num"><em>10x</em></div>
+    <div class="stat-label">Faster than manual estimating</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">12</div>
+    <div class="stat-label">Languages supported</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">50+</div>
+    <div class="stat-label">Trade categories covered</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num"><em>$0</em></div>
+    <div class="stat-label">To get started</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <div class="section-inner">
+    <div class="section-tag">How it works</div>
+    <h2>From photo to invoice<br>in under a minute</h2>
+    <p class="section-desc">No more guessing, no more hours on manual takeoffs. Let AI do the heavy lifting.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Snap or Describe</h3>
+        <p>Take a photo of the job site, describe the work in plain English, or import a blueprint. The AI understands any format.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>AI Builds the Estimate</h3>
+        <p>Get a detailed cost breakdown with local labor rates and material pricing for your exact city — updated for 2026.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Send & Get Paid</h3>
+        <p>Adjust your markup, add tax, and export a professional PDF estimate or invoice. Send it to your client on the spot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section class="section bg-light" id="screenshots">
+  <div class="section-inner">
+    <div class="section-tag">App Preview</div>
+    <h2>Built for the job site</h2>
+    <p class="section-desc" style="margin-bottom: 36px;">Everything a contractor needs, in one clean app.</p>
+    <div class="screenshots-row">
+      <div class="screenshot-frame">
+        <div class="screenshot-placeholder">📸<br>Describe<br>the job</div>
+      </div>
+      <div class="screenshot-frame">
+        <div class="screenshot-placeholder">⚡<br>AI Estimate<br>in seconds</div>
+      </div>
+      <div class="screenshot-frame">
+        <div class="screenshot-placeholder">📄<br>PDF Export<br>& Invoice</div>
+      </div>
+      <div class="screenshot-frame">
+        <div class="screenshot-placeholder">📍<br>Local<br>Pricing</div>
+      </div>
+      <div class="screenshot-frame">
+        <div class="screenshot-placeholder">⚙️<br>Business<br>Profile</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-tag">Features</div>
+    <h2>Everything you need<br>to quote and win</h2>
+    <p class="section-desc">Built for contractors who are on the job, not behind a desk.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📸</div>
+        <h3>AI Photo Estimation</h3>
+        <p>Point your camera at any project. Our proprietary estimation engine reads the scope of work and instantly calculates a detailed cost breakdown.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <h3>Local Pricing, Always Current</h3>
+        <p>Material costs and labor rates are calibrated for your specific city. No more outdated price books or manual lookups.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎙️</div>
+        <h3>Voice Editing</h3>
+        <p>Hands covered in drywall? Edit your estimate hands-free using voice commands — built for real job sites, not offices.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <h3>Professional PDF Exports</h3>
+        <p>Generate client-ready estimates and invoices with your business name, logo, and contact info. Close jobs on the spot.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📐</div>
+        <h3>Blueprint Import</h3>
+        <p>Import floor plans for precise material takeoffs. Less time measuring, more time building.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚙️</div>
+        <h3>Your Margins, Your Rules</h3>
+        <p>Set your markup %, tax rates, and hourly rates once. Every estimate reflects your real business costs automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRADES -->
+<section class="section bg-light" id="trades">
+  <div class="section-inner">
+    <div class="section-tag">Built For</div>
+    <h2>Works for every trade</h2>
+    <p class="section-desc" style="margin-bottom: 40px;">Whether you swing a hammer or run wire, Estimates Pro has your back.</p>
+    <div class="trades-grid">
+      <div class="trade-card"><div class="trade-icon">🏗️</div><p>General<br>Contractors</p></div>
+      <div class="trade-card"><div class="trade-icon">⚡</div><p>Electricians</p></div>
+      <div class="trade-card"><div class="trade-icon">🔧</div><p>Plumbers</p></div>
+      <div class="trade-card"><div class="trade-icon">🪚</div><p>Handymen</p></div>
+      <div class="trade-card"><div class="trade-icon">🏠</div><p>Remodelers</p></div>
+      <div class="trade-card"><div class="trade-icon">🌿</div><p>Landscapers</p></div>
+      <div class="trade-card"><div class="trade-icon">❄️</div><p>HVAC Techs</p></div>
+      <div class="trade-card"><div class="trade-icon">🪟</div><p>Painters</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-tag">Reviews</div>
+    <h2>Contractors love it</h2>
+    <p class="section-desc" style="margin-bottom: 40px;">4.5 stars on the App Store.</p>
+    <div class="testimonials">
+      <div class="testimonial">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-text">"Game changer. I used to spend an hour on every estimate. Now I do it in 5 minutes on the job site and send the PDF before I leave."</p>
+        <div class="t-author">Mike R.</div>
+        <div class="t-role">General Contractor, Texas</div>
+      </div>
+      <div class="testimonial">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-text">"Finally an app that knows what things cost in my area. The local pricing is spot on. Saves me hours every week."</p>
+        <div class="t-author">James T.</div>
+        <div class="t-role">Electrician, California</div>
+      </div>
+      <div class="testimonial">
+        <div class="t-stars">★★★★★</div>
+        <p class="t-text">"Contractor's best friend. I've won 3 extra jobs this month because I could quote faster than the competition."</p>
+        <div class="t-author">Carlos M.</div>
+        <div class="t-role">Handyman, Florida</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2>Stop losing jobs<br>to slow estimates</h2>
+  <p>Free to download. Start quoting in minutes.</p>
+  <a href="https://apps.apple.com/us/app/cost-estimator-construction/id6758105341" class="btn-white">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+    Download Free on iPhone
+  </a>
+</section>
+
+<footer>
+  <p>© 2026 Brite Technologies LLC · Estimates Pro</p>
+  <div class="footer-links">
+    <a href="/privacy.html">Privacy Policy</a>
+    <a href="mailto:hello@britetodo.com">Support</a>
+  </div>
+</footer>
+
+</body>
+</html>

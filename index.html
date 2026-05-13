@@ -354,7 +354,15 @@
     border: 1px solid var(--border);
     border-radius: 16px; padding: 28px;
   }
-  .t-stars { color: #F59E0B; font-size: 15px; margin-bottom: 14px; }
+  .t-stars { display: flex; gap: 3px; margin-bottom: 14px; }
+  .t-star {
+    width: 28px; height: 28px; border-radius: 3px;
+    background: #00b67a;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .t-star svg { width: 17px; height: 17px; }
+  .t-rating-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .t-rating-num { font-size: 13px; font-weight: 700; color: #00b67a; }
   .t-text { font-size: 15px; color: var(--text); line-height: 1.65; margin-bottom: 20px; font-style: italic; }
   .t-author { font-size: 14px; font-weight: 700; color: var(--text); }
   .t-role { font-size: 12px; color: var(--text-sec); }
@@ -593,19 +601,37 @@
     <p class="section-desc" style="margin-bottom: 40px;">4.5 stars on the App Store.</p>
     <div class="testimonials">
       <div class="testimonial">
-        <div class="t-stars">★★★★★</div>
+        <div class="t-stars">
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+        </div>
         <p class="t-text">"Game changer. I used to spend an hour on every estimate. Now I do it in 5 minutes on the job site and send the PDF before I leave."</p>
         <div class="t-author">Mike R.</div>
         <div class="t-role">General Contractor, Texas</div>
       </div>
       <div class="testimonial">
-        <div class="t-stars">★★★★★</div>
+        <div class="t-stars">
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+        </div>
         <p class="t-text">"Finally an app that knows what things cost in my area. The local pricing is spot on. Saves me hours every week."</p>
         <div class="t-author">James T.</div>
         <div class="t-role">Electrician, California</div>
       </div>
       <div class="testimonial">
-        <div class="t-stars">★★★★★</div>
+        <div class="t-stars">
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+          <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
+        </div>
         <p class="t-text">"Contractor's best friend. I've won 3 extra jobs this month because I could quote faster than the competition."</p>
         <div class="t-author">Carlos M.</div>
         <div class="t-role">Handyman, Florida</div>

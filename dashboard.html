@@ -146,23 +146,37 @@
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-icon">🔐</div>
-    <div class="auth-title" id="auth-title">Sign In</div>
-    <div class="auth-sub" id="auth-sub">Access your estimates from any device</div>
+  <!-- Step 1: Email -->
+  <div class="auth-card" id="step-email">
+    <div class="auth-icon">✉️</div>
+    <div class="auth-title">Sign In or Sign Up</div>
+    <div class="auth-sub">Enter your email — we'll send a 6-digit code. No password needed.</div>
     <div id="auth-error" class="error-msg" style="display:none"></div>
     <div class="form-field">
       <label>Email</label>
       <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
     </div>
+    <button class="btn-primary" id="send-btn" onclick="sendCode()">Send Code</button>
+  </div>
+
+  <!-- Step 2: Code -->
+  <div class="auth-card" id="step-code" style="display:none">
+    <div class="auth-icon">🔢</div>
+    <div class="auth-title">Check Your Email</div>
+    <div class="auth-sub" id="code-sub">We sent a 6-digit code to your email.</div>
+    <div id="code-error" class="error-msg" style="display:none"></div>
     <div class="form-field">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      <label>6-Digit Code</label>
+      <input type="text" id="otp-code" placeholder="123456" maxlength="6" inputmode="numeric"
+             autocomplete="one-time-code"
+             style="font-size:28px;font-weight:700;letter-spacing:8px;text-align:center"
+             oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) verifyCode()">
     </div>
-    <button class="btn-primary" id="auth-btn" onclick="handleAuth()">Sign In</button>
+    <button class="btn-primary" id="verify-btn" onclick="verifyCode()">Confirm Code</button>
     <div class="auth-toggle">
-      <span id="toggle-text">Don't have an account?</span>
-      <a onclick="toggleMode()"> <span id="toggle-link">Create one</span></a>
+      <a onclick="backToEmail()" style="cursor:pointer">← Change email</a>
+      &nbsp;·&nbsp;
+      <a onclick="sendCode(true)" style="cursor:pointer">Resend code</a>
     </div>
   </div>
 </div>
@@ -223,7 +237,7 @@ const sb = createClient(
 // ─── State ────────────────────────────────────────
 let projects = []
 let currentEstimate = null
-let isSignUp = false
+let otpEmail = ''
 
 // ─── Helpers ──────────────────────────────────────
 const $ = id => document.getElementById(id)
@@ -235,7 +249,7 @@ function statusBadge(s) {
   return `<span class="badge ${map[s] || 'badge-draft'}">${(s||'').toLowerCase()}</span>`
 }
 
-// ─── Auth ──────────────────────────────────────────
+// ─── Auth (OTP) ────────────────────────────────────
 sb.auth.onAuthStateChange((event, session) => {
   if (session) {
     showDashboard(session.user)
@@ -245,39 +259,53 @@ sb.auth.onAuthStateChange((event, session) => {
   }
 })
 
-function toggleMode() {
-  isSignUp = !isSignUp
-  $('auth-title').textContent = isSignUp ? 'Create Account' : 'Sign In'
-  $('auth-sub').textContent = isSignUp ? 'Sync your estimates across all devices' : 'Access your estimates from any device'
-  $('auth-btn').textContent = isSignUp ? 'Create Account' : 'Sign In'
-  $('toggle-text').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?"
-  $('toggle-link').textContent = isSignUp ? 'Sign In' : 'Create one'
-  $('auth-error').style.display = 'none'
-  $('password').autocomplete = isSignUp ? 'new-password' : 'current-password'
-}
+$('email').addEventListener('keydown', e => e.key === 'Enter' && sendCode())
 
-async function handleAuth() {
+async function sendCode(resend = false) {
   const email = $('email').value.trim()
-  const password = $('password').value
-  if (!email || !password) return
-  $('auth-btn').disabled = true
-  $('auth-btn').textContent = '...'
+  if (!email) return
+  otpEmail = email
+  $('send-btn').disabled = true
+  $('send-btn').textContent = 'Sending...'
   $('auth-error').style.display = 'none'
   try {
-    const { error } = isSignUp
-      ? await sb.auth.signUp({ email, password })
-      : await sb.auth.signInWithPassword({ email, password })
+    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } })
     if (error) throw error
+    $('code-sub').textContent = `We sent a 6-digit code to ${email}`
+    $('step-email').style.display = 'none'
+    $('step-code').style.display = 'flex'
+    $('otp-code').focus()
   } catch (e) {
     $('auth-error').textContent = e.message
     $('auth-error').style.display = 'block'
-    $('auth-btn').disabled = false
-    $('auth-btn').textContent = isSignUp ? 'Create Account' : 'Sign In'
+  }
+  $('send-btn').disabled = false
+  $('send-btn').textContent = 'Send Code'
+}
+
+async function verifyCode() {
+  const token = $('otp-code').value.trim()
+  if (token.length !== 6) return
+  $('verify-btn').disabled = true
+  $('verify-btn').textContent = 'Verifying...'
+  $('code-error').style.display = 'none'
+  try {
+    const { error } = await sb.auth.verifyOtp({ email: otpEmail, token, type: 'email' })
+    if (error) throw error
+  } catch (e) {
+    $('code-error').textContent = e.message
+    $('code-error').style.display = 'block'
+    $('verify-btn').disabled = false
+    $('verify-btn').textContent = 'Confirm Code'
   }
 }
 
-$('email').addEventListener('keydown', e => e.key === 'Enter' && $('password').focus())
-$('password').addEventListener('keydown', e => e.key === 'Enter' && handleAuth())
+function backToEmail() {
+  $('step-code').style.display = 'none'
+  $('step-email').style.display = 'flex'
+  $('otp-code').value = ''
+  $('code-error').style.display = 'none'
+}
 
 async function signOut() {
   await sb.auth.signOut()

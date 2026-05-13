@@ -157,6 +157,24 @@
   .btn-danger { background: none; border: 1px solid rgba(198,40,40,.3); border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--red); }
   .btn-danger:hover { background: #FFEBEE; }
 
+  /* ── LIVE INDICATOR & TOAST ─────────────────── */
+  .live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--green); }
+  .live-dot::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+  .toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+  .toast { background: #1C1C1E; color: #fff; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,.25); opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .25s; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── CONFIRM DIALOG ──────────────────────────── */
+  .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+  .confirm-box { background: var(--white); border-radius: 14px; padding: 24px; max-width: 320px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,.15); }
+  .confirm-box h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .confirm-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+  .confirm-actions { display: flex; gap: 10px; }
+  .confirm-actions button { flex: 1; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; }
+  .confirm-cancel { background: var(--bg); color: var(--text); }
+  .confirm-ok { background: var(--red); color: #fff; }
+
   /* ── EMPTY / LOADING ─────────────────────────── */
   .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
@@ -204,10 +222,26 @@
     </a>
   </div>
   <div class="nav-right">
+    <span class="live-dot" id="live-indicator" style="display:none">Live</span>
     <span class="nav-email" id="nav-email"></span>
-    <button class="btn-sm" id="btn-signout" style="display:none" onclick="signOut()">Sign Out</button>
+    <button class="btn-sm" id="btn-signout" style="display:none" onclick="confirmSignOut()">Sign Out</button>
   </div>
 </nav>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- Confirm dialog -->
+<div class="confirm-overlay" id="confirm-overlay" style="display:none" onclick="closeConfirm()">
+  <div class="confirm-box" onclick="event.stopPropagation()">
+    <h4 id="confirm-title"></h4>
+    <p id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-ok" id="confirm-ok-btn">Confirm</button>
+    </div>
+  </div>
+</div>
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
@@ -431,6 +465,8 @@ let projects = []
 let currentEstimate = null
 let otpEmail = ''
 let currentPage = 'projects'
+let realtimeChannel = null
+let currentUserId = null
 
 // ── Helpers ────────────────────────────────────
 const $ = id => document.getElementById(id)
@@ -501,11 +537,17 @@ function backToEmail() {
 }
 
 async function signOut() {
+  unsubscribeRealtime()
   await sb.auth.signOut()
+}
+
+function confirmSignOut() {
+  showConfirm('Sign Out', 'You'll need to enter your email and a new 6-digit code to sign back in.', 'Sign Out', () => signOut())
 }
 
 // ── View switching ─────────────────────────────
 function onLoggedIn(user) {
+  currentUserId = user.id
   $('auth-screen').style.display = 'none'
   $('app').style.display = 'block'
   $('btn-signout').style.display = 'block'
@@ -514,17 +556,107 @@ function onLoggedIn(user) {
   $('acct-email').textContent = user.email
   loadProjects()
   loadBusinessProfile()
+  subscribeRealtime(user.id)
 }
 
 function onLoggedOut() {
+  unsubscribeRealtime()
+  currentUserId = null
   $('auth-screen').style.display = 'flex'
   $('app').style.display = 'none'
   $('btn-signout').style.display = 'none'
+  $('live-indicator').style.display = 'none'
   $('nav-email').textContent = ''
   $('step-email').style.display = 'flex'
   $('step-code').style.display = 'none'
   $('otp-code').value = ''
   projects = []
+}
+
+// ── Realtime ───────────────────────────────────
+function subscribeRealtime(userId) {
+  realtimeChannel = sb.channel('dashboard-' + userId)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'projects', filter: `user_id=eq.${userId}` },
+      payload => handleProjectChange(payload)
+    )
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'business_profiles', filter: `user_id=eq.${userId}` },
+      payload => { loadBusinessProfile(); showToast('Business profile updated') }
+    )
+    .subscribe(status => {
+      $('live-indicator').style.display = status === 'SUBSCRIBED' ? 'inline-flex' : 'none'
+    })
+}
+
+function unsubscribeRealtime() {
+  if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null }
+}
+
+function handleProjectChange(payload) {
+  const { eventType, new: row, old } = payload
+
+  if (eventType === 'DELETE') {
+    const id = old.id
+    projects = projects.filter(p => p.id !== id)
+    // If the deleted project was open, close the panel
+    const openName = $('panel-project-name').textContent
+    const wasClosed = !projects.find(p => p.name === openName)
+    if (wasClosed) closeProject()
+    renderProjectGrid()
+    showToast('Project removed')
+    return
+  }
+
+  const project = row.data
+  if (!project) return
+
+  if (eventType === 'INSERT') {
+    projects.unshift(project)
+    showToast(`New project: ${project.name || 'Untitled'}`)
+  } else if (eventType === 'UPDATE') {
+    const idx = projects.findIndex(p => p.id === project.id)
+    if (idx !== -1) {
+      projects[idx] = project
+      // If this project's panel is open, refresh it
+      if ($('estimate-panel').style.display !== 'none' &&
+          $('panel-project-name').textContent === (projects[idx].name || 'Project')) {
+        openProject(idx)
+      }
+    } else {
+      projects.unshift(project)
+    }
+    showToast(`Updated: ${project.name || 'Untitled'}`)
+  }
+
+  projects.sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate))
+  renderProjectGrid()
+}
+
+// ── Toast ──────────────────────────────────────
+function showToast(msg) {
+  const wrap = $('toast-wrap')
+  const el = document.createElement('div')
+  el.className = 'toast'
+  el.textContent = msg
+  wrap.appendChild(el)
+  requestAnimationFrame(() => { requestAnimationFrame(() => el.classList.add('show')) })
+  setTimeout(() => {
+    el.classList.remove('show')
+    setTimeout(() => el.remove(), 300)
+  }, 3000)
+}
+
+// ── Confirm dialog ─────────────────────────────
+function showConfirm(title, msg, okLabel, onOk) {
+  $('confirm-title').textContent = title
+  $('confirm-msg').textContent = msg
+  $('confirm-ok-btn').textContent = okLabel
+  $('confirm-ok-btn').onclick = () => { closeConfirm(); onOk() }
+  $('confirm-overlay').style.display = 'flex'
+}
+function closeConfirm() {
+  $('confirm-overlay').style.display = 'none'
 }
 
 function showPage(name) {
@@ -559,10 +691,17 @@ async function loadProjects() {
   if (error || !data || data.length === 0) { $('projects-empty').style.display = 'block'; return }
 
   projects = data.map(r => r.data).filter(Boolean)
-  if (projects.length === 0) { $('projects-empty').style.display = 'block'; return }
+  renderProjectGrid()
+}
 
+function renderProjectGrid() {
+  if (projects.length === 0) {
+    $('projects-grid').style.display = 'none'
+    $('projects-empty').style.display = 'block'
+    return
+  }
+  $('projects-empty').style.display = 'none'
   $('acct-projects').textContent = projects.length
-
   $('projects-grid').style.display = 'grid'
   $('projects-grid').innerHTML = projects.map((p, i) => {
     const top = (p.estimates || [])[0]

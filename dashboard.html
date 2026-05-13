@@ -348,9 +348,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                 Export CSV
               </button>
-              <button class="action-btn" onclick="window.print()">
+              <button class="action-btn" onclick="printEstimate()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Print
+                Save PDF / Print
               </button>
             </div>
           </div>
@@ -467,6 +467,7 @@ let otpEmail = ''
 let currentPage = 'projects'
 let realtimeChannel = null
 let currentUserId = null
+let businessProfile = null   // { data: BusinessInfo, rates_data: [...] }
 
 // ── Helpers ────────────────────────────────────
 const $ = id => document.getElementById(id)
@@ -847,6 +848,7 @@ async function loadBusinessProfile() {
     }</tbody></table>`
   }
 
+  businessProfile = data
   $('profile-content').style.display = 'block'
 }
 
@@ -898,6 +900,179 @@ function exportCSV() {
   const a = document.createElement('a'); a.href = url; a.download = (est.name||'estimate').replace(/[^a-zA-Z0-9 ]/g,'').trim()+'.csv'; a.click()
   URL.revokeObjectURL(url)
 }
+
+// ── PDF Print ──────────────────────────────────
+function printEstimate() {
+  if (!currentEstimate) return
+  const est = currentEstimate
+  const bi = (businessProfile && businessProfile.data) || {}
+
+  const addrParts = [bi.street, [bi.city, bi.state, bi.zipCode].filter(Boolean).join(', '), bi.country].filter(Boolean)
+  const contactParts = [bi.phone, bi.email, bi.website].filter(Boolean)
+
+  // Line items HTML
+  let itemsHtml = ''
+  if (est.sections && est.sections.length > 0) {
+    for (const sec of est.sections) {
+      const rows = [
+        ...(sec.materialItems || []).map(i =>
+          `<tr><td>${pe(i.description)}</td><td>Material</td><td>${i.quantity} ${pe(i.unit)}</td><td>${fmt(i.unitCost)}</td><td>${fmt(i.totalCost)}</td></tr>`),
+        ...(sec.laborItems || []).map(i =>
+          `<tr><td>${pe(i.trade)}${i.description ? ': ' + pe(i.description) : ''}</td><td>Labor</td><td>${i.hours}h × ${i.workers} worker${i.workers !== 1 ? 's' : ''}</td><td>${fmt(i.rate)}/hr</td><td>${fmt(i.total)}</td></tr>`)
+      ]
+      if (!rows.length) continue
+      itemsHtml += `<tr class="sec-head"><td colspan="5">${pe(sec.name)}</td></tr>${rows.join('')}`
+    }
+  } else {
+    const mats = est.lineItems || [], lab = est.laborItems || []
+    if (mats.length) {
+      itemsHtml += `<tr class="sec-head"><td colspan="5">Materials</td></tr>`
+      itemsHtml += mats.map(i => `<tr><td>${pe(i.description)}</td><td>Material</td><td>${i.quantity} ${pe(i.unit)}</td><td>${fmt(i.unitCost)}</td><td>${fmt(i.totalCost)}</td></tr>`).join('')
+    }
+    if (lab.length) {
+      itemsHtml += `<tr class="sec-head"><td colspan="5">Labor</td></tr>`
+      itemsHtml += lab.map(i => `<tr><td>${pe(i.trade)}${i.description ? ': ' + pe(i.description) : ''}</td><td>Labor</td><td>${i.hours}h × ${i.workers} worker${i.workers !== 1 ? 's' : ''}</td><td>${fmt(i.rate)}/hr</td><td>${fmt(i.total)}</td></tr>`).join('')
+    }
+  }
+  if (est.permitsItems && est.permitsItems.length) {
+    itemsHtml += `<tr class="sec-head"><td colspan="5">Permits &amp; Fees</td></tr>`
+    itemsHtml += est.permitsItems.map(i => `<tr><td>${pe(i.description)}</td><td>Fee</td><td>—</td><td>—</td><td>${fmt(i.totalCost)}</td></tr>`).join('')
+  }
+
+  // Totals rows
+  const totals = [
+    ['Materials', est.materialsCost],
+    ['Labor', est.laborCost],
+    est.equipmentCost > 0 ? ['Equipment', est.equipmentCost] : null,
+    est.permitsCost > 0 ? ['Permits & Fees', est.permitsCost] : null,
+    est.contingencyAmount > 0 ? [`Contingency (${est.contingencyPercent}%)`, est.contingencyAmount] : null,
+    ['Subtotal', est.subtotal],
+    est.markupAmount > 0 ? [`Markup (${est.markupPercent}%)`, est.markupAmount] : null,
+    est.taxAmount > 0 ? [`Tax (${est.taxPercent}%)`, est.taxAmount] : null,
+  ].filter(Boolean)
+
+  const totalsHtml = totals.map(([l, v]) =>
+    `<div class="tot-row"><span>${l}</span><span>${fmt(v)}</span></div>`).join('')
+
+  const validity = bi.quoteValidityDays || 30
+  const payTerms = bi.paymentTerms || ''
+  const payMethods = bi.paymentMethods || ''
+  const payDetails = bi.paymentDetails || ''
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>${pe(est.name || 'Estimate')}</title>
+<style>
+  @page { size: letter; margin: 18mm 16mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #1C1C1E; line-height: 1.5; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #1565C0; }
+  .company h1 { font-size: 20px; font-weight: 800; color: #1565C0; margin-bottom: 3px; }
+  .company p { font-size: 11px; color: #555; margin: 1px 0; }
+  .est-meta { text-align: right; }
+  .est-meta .label { font-size: 28px; font-weight: 900; color: #1565C0; letter-spacing: -1px; }
+  .est-meta table { margin-top: 6px; font-size: 11px; border-collapse: collapse; }
+  .est-meta td { padding: 1px 0 1px 16px; color: #555; }
+  .est-meta td:first-child { font-weight: 600; color: #1C1C1E; padding-left: 0; }
+  .bill-section { display: flex; gap: 40px; margin-bottom: 24px; }
+  .bill-box h4 { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #888; margin-bottom: 5px; }
+  .bill-box p { font-size: 12px; font-weight: 600; margin-bottom: 1px; }
+  .bill-box span { font-size: 11px; color: #555; }
+  table.items { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11.5px; }
+  table.items th { background: #1565C0; color: #fff; padding: 7px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .4px; }
+  table.items th:last-child { text-align: right; }
+  table.items td { padding: 6px 10px; border-bottom: 1px solid #F0F0F0; vertical-align: top; }
+  table.items td:last-child { text-align: right; font-weight: 600; }
+  table.items td:nth-child(3), table.items td:nth-child(4) { color: #666; }
+  table.items tr.sec-head td { background: #E3F2FD; color: #1565C0; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .4px; padding: 5px 10px; border-bottom: none; }
+  table.items tr:last-child td { border-bottom: none; }
+  .totals-wrap { display: flex; justify-content: flex-end; margin-bottom: 28px; }
+  .totals { width: 260px; }
+  .tot-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; border-bottom: 1px solid #F0F0F0; }
+  .tot-row:last-child { border-bottom: none; }
+  .grand { display: flex; justify-content: space-between; padding: 10px 12px; background: #1565C0; color: #fff; border-radius: 6px; margin-top: 6px; font-size: 15px; font-weight: 800; }
+  .footer-section { border-top: 1px solid #E5E7EB; padding-top: 16px; margin-bottom: 20px; }
+  .footer-section h4 { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #888; margin-bottom: 6px; }
+  .footer-section p { font-size: 11px; color: #444; margin-bottom: 3px; }
+  .sign-section { display: flex; gap: 40px; margin-top: 28px; padding-top: 20px; border-top: 1px solid #E5E7EB; }
+  .sign-box { flex: 1; }
+  .sign-box .sign-label { font-size: 10px; color: #888; margin-bottom: 30px; }
+  .sign-box .sign-line { border-top: 1px solid #333; padding-top: 5px; font-size: 10px; color: #888; }
+  .validity { font-size: 11px; color: #666; margin-bottom: 16px; font-style: italic; }
+</style></head><body>
+
+<div class="header">
+  <div class="company">
+    <h1>${pe(bi.name || 'Company Name')}</h1>
+    ${bi.contractorType ? `<p>${pe(bi.contractorType)}${bi.licenseNumber ? ' · License #' + pe(bi.licenseNumber) : ''}</p>` : ''}
+    ${addrParts.map(a => `<p>${pe(a)}</p>`).join('')}
+    ${contactParts.length ? `<p style="margin-top:4px">${contactParts.map(pe).join(' · ')}</p>` : ''}
+  </div>
+  <div class="est-meta">
+    <div class="label">ESTIMATE</div>
+    <table>
+      <tr><td>Date</td><td>${fmtDate(est.createdDate)}</td></tr>
+      <tr><td>Valid for</td><td>${validity} days</td></tr>
+      ${est.name ? `<tr><td>Project</td><td>${pe(est.name)}</td></tr>` : ''}
+    </table>
+  </div>
+</div>
+
+<div class="bill-section">
+  <div class="bill-box">
+    <h4>Prepared For</h4>
+    <p>${pe(est.clientName || '—')}</p>
+  </div>
+  ${bi.name ? `<div class="bill-box"><h4>Prepared By</h4><p>${pe(bi.name)}</p>${bi.email ? `<span>${pe(bi.email)}</span>` : ''}</div>` : ''}
+</div>
+
+<table class="items">
+  <thead><tr>
+    <th style="width:38%">Description</th>
+    <th style="width:10%">Type</th>
+    <th style="width:18%">Qty / Hours</th>
+    <th style="width:14%">Unit Rate</th>
+    <th style="width:14%">Total</th>
+  </tr></thead>
+  <tbody>${itemsHtml}</tbody>
+</table>
+
+<div class="totals-wrap">
+  <div class="totals">
+    ${totalsHtml}
+    <div class="grand"><span>TOTAL</span><span>${fmt(est.grandTotal)}</span></div>
+  </div>
+</div>
+
+${payTerms || payMethods || payDetails ? `
+<div class="footer-section">
+  <h4>Payment Information</h4>
+  ${payTerms ? `<p><strong>Terms:</strong> ${pe(payTerms)}</p>` : ''}
+  ${payMethods ? `<p><strong>Methods:</strong> ${pe(payMethods)}</p>` : ''}
+  ${payDetails ? `<p>${pe(payDetails)}</p>` : ''}
+</div>` : ''}
+
+<p class="validity">This estimate is valid for ${validity} days from the date of issue. Prices are subject to change after this period.</p>
+
+<div class="sign-section">
+  <div class="sign-box">
+    <div class="sign-label">Client Signature</div>
+    <div class="sign-line">Signature &amp; Date</div>
+  </div>
+  <div class="sign-box">
+    <div class="sign-label">Contractor Signature</div>
+    <div class="sign-line">Signature &amp; Date</div>
+  </div>
+</div>
+
+<script>window.onload = () => window.print()<\/script>
+</body></html>`
+
+  const w = window.open('', '_blank')
+  w.document.write(html)
+  w.document.close()
+}
+
+function pe(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')

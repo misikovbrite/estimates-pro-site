@@ -20,23 +20,27 @@
     --orange: #E65100;
     --red: #C62828;
     --purple: #6A1B9A;
+    --sidebar-w: 220px;
+    --nav-h: 56px;
     --radius: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  /* NAV */
-  nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  /* ── NAV ─────────────────────────────────────── */
+  nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 20px; height: var(--nav-h); display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 200; }
   .nav-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; text-decoration: none; color: var(--text); }
   .nav-logo img { width: 28px; height: 28px; border-radius: 6px; }
   .nav-logo span { color: var(--blue); }
-  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
   .nav-email { font-size: 13px; color: var(--muted); }
-  .btn-signout { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--muted); }
-  .btn-signout:hover { border-color: var(--red); color: var(--red); }
+  .btn-sm { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .btn-sm:hover { border-color: var(--red); color: var(--red); }
+  .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+  .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); margin: 4px 0; border-radius: 2px; transition: .2s; }
 
-  /* AUTH SCREEN */
-  #auth-screen { min-height: calc(100vh - 56px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+  /* ── AUTH SCREEN ─────────────────────────────── */
+  #auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 300; }
   .auth-card { background: var(--white); border-radius: 16px; padding: 36px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
   .auth-icon { font-size: 40px; text-align: center; margin-bottom: 12px; }
   .auth-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 4px; }
@@ -52,101 +56,161 @@
   .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 500; cursor: pointer; }
   .error-msg { background: #FFEBEE; color: var(--red); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; }
 
-  /* DASHBOARD */
-  #dashboard { display: none; }
-  .dashboard-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
-  .dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .dashboard-header h1 { font-size: 22px; font-weight: 700; }
-  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  /* ── APP SHELL ───────────────────────────────── */
+  #app { display: none; padding-top: var(--nav-h); min-height: 100vh; }
 
-  /* PROJECT CARD */
+  /* ── SIDEBAR ─────────────────────────────────── */
+  .sidebar { position: fixed; top: var(--nav-h); left: 0; bottom: 0; width: var(--sidebar-w); background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; transition: transform .25s; }
+  .sidebar-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 8px; margin: 1px 8px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text); border: none; background: none; width: calc(100% - 16px); text-align: left; transition: background .15s; }
+  .nav-item:hover { background: var(--bg); }
+  .nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 600; }
+  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; opacity: .75; }
+  .nav-item.active svg { opacity: 1; }
+  .sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid var(--border); }
+  .user-chip { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: var(--bg); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .user-avatar svg { width: 16px; height: 16px; color: var(--blue); }
+  .user-info .user-email { font-size: 12px; font-weight: 600; color: var(--text); max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-info .user-role { font-size: 11px; color: var(--muted); }
+
+  /* ── MAIN CONTENT ────────────────────────────── */
+  .main { margin-left: var(--sidebar-w); min-height: calc(100vh - var(--nav-h)); }
+  .page { display: none; padding: 28px 24px; max-width: 1000px; }
+  .page.active { display: block; }
+  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; }
+
+  /* ── PROJECTS ────────────────────────────────── */
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
   .project-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; cursor: pointer; transition: box-shadow .15s; }
   .project-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
   .project-card.active { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-light); }
-  .project-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .project-name { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
   .project-client { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
   .project-footer { display: flex; align-items: center; justify-content: space-between; }
   .project-total { font-size: 15px; font-weight: 700; color: var(--blue); }
   .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-  .badge-draft    { background: #F5F5F5; color: #666; }
-  .badge-estimated{ background: var(--blue-light); color: var(--blue); }
-  .badge-sent     { background: #FFF3E0; color: var(--orange); }
-  .badge-approved { background: #E8F5E9; color: var(--green); }
-  .badge-completed{ background: #F3E5F5; color: var(--purple); }
+  .badge-draft     { background: #F5F5F5; color: #666; }
+  .badge-estimated { background: var(--blue-light); color: var(--blue); }
+  .badge-sent      { background: #FFF3E0; color: var(--orange); }
+  .badge-approved  { background: #E8F5E9; color: var(--green); }
+  .badge-completed { background: #F3E5F5; color: var(--purple); }
 
-  /* ESTIMATES PANEL */
-  #estimate-panel { display: none; }
-  .panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; margin-top: 28px; }
+  /* ── ESTIMATE PANEL ──────────────────────────── */
+  .panel-section { margin-top: 28px; }
+  .panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .panel-header h2 { font-size: 18px; font-weight: 700; }
-  .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); line-height: 1; }
-  .estimates-list { display: flex; flex-direction: column; gap: 12px; }
-  .estimate-row { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: box-shadow .15s; }
+  .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); line-height: 1; padding: 2px 6px; border-radius: 6px; }
+  .back-btn:hover { background: var(--bg); }
+  .estimates-list { display: flex; flex-direction: column; gap: 10px; }
+  .estimate-row { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: box-shadow .15s; }
   .estimate-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,.07); }
   .estimate-row.active { border-color: var(--blue); }
-  .estimate-info .est-name { font-size: 15px; font-weight: 600; }
-  .estimate-info .est-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .est-name { font-size: 15px; font-weight: 600; }
+  .est-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .estimate-total { font-size: 18px; font-weight: 700; color: var(--blue); }
 
-  /* ESTIMATE DETAIL */
-  #estimate-detail { display: none; margin-top: 24px; }
-  .detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  /* ── ESTIMATE DETAIL ─────────────────────────── */
+  .detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 20px; }
   .detail-header { background: var(--blue); color: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
   .detail-header h3 { font-size: 17px; font-weight: 700; }
-  .detail-header .grand-total { font-size: 22px; font-weight: 800; }
+  .detail-grand { font-size: 22px; font-weight: 800; }
   .detail-body { padding: 16px 20px; }
   .detail-actions { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border); background: #FAFAFA; flex-wrap: wrap; }
   .action-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text); }
   .action-btn:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
-  .action-btn svg { width: 15px; height: 15px; }
-
-  /* SECTION TABLE */
   .section-block { margin-bottom: 16px; }
-  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--blue); background: var(--blue-light); padding: 5px 10px; border-radius: 4px; margin-bottom: 6px; }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--blue); background: var(--blue-light); padding: 4px 10px; border-radius: 4px; margin-bottom: 6px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { text-align: left; padding: 6px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); border-bottom: 1px solid var(--border); }
   td { padding: 7px 8px; border-bottom: 1px solid #F5F5F5; }
   tr:last-child td { border-bottom: none; }
-  .td-right { text-align: right; }
-  .td-muted { color: var(--muted); }
-
-  /* TOTALS */
+  .td-r { text-align: right; }
+  .td-m { color: var(--muted); }
   .totals-section { border-top: 2px solid var(--border); padding-top: 12px; margin-top: 8px; }
   .total-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
   .total-row.grand { font-size: 17px; font-weight: 800; color: var(--blue); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
 
-  /* EMPTY / LOADING */
+  /* ── BUSINESS PROFILE ────────────────────────── */
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .profile-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .profile-card h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 14px; }
+  .profile-row { display: flex; flex-direction: column; gap: 3px; padding: 9px 0; border-bottom: 1px solid var(--bg); }
+  .profile-row:last-child { border-bottom: none; }
+  .profile-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+  .profile-value { font-size: 14px; color: var(--text); }
+  .profile-value.empty { color: var(--muted); font-style: italic; }
+  .rates-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rates-table th { text-align: left; padding: 6px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .rates-table td { padding: 9px 8px; border-bottom: 1px solid #F5F5F5; }
+  .rates-table tr:last-child td { border-bottom: none; }
+  .hint-card { background: var(--blue-light); border: 1px solid rgba(21,101,192,.15); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 20px; font-size: 13px; color: var(--blue); display: flex; align-items: flex-start; gap: 10px; }
+  .hint-card svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── ACCOUNT PAGE ────────────────────────────── */
+  .account-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .account-card h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 14px; }
+  .account-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--bg); }
+  .account-row:last-child { border-bottom: none; }
+  .account-row label { font-size: 13px; color: var(--muted); }
+  .account-row value, .account-row .val { font-size: 14px; font-weight: 500; color: var(--text); }
+  .btn-danger { background: none; border: 1px solid rgba(198,40,40,.3); border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--red); }
+  .btn-danger:hover { background: #FFEBEE; }
+
+  /* ── EMPTY / LOADING ─────────────────────────── */
   .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
   .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading { text-align: center; padding: 60px; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #E8F5E9; color: var(--green); }
 
-  @media (max-width: 600px) {
+  /* ── RESPONSIVE ──────────────────────────────── */
+  @media (max-width: 768px) {
+    .hamburger { display: block; }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 99; }
+    .sidebar-overlay.open { display: block; }
+    .main { margin-left: 0; }
+    .profile-grid { grid-template-columns: 1fr; }
+    .nav-email { display: none; }
+  }
+  @media (max-width: 500px) {
+    .page { padding: 20px 16px; }
     .projects-grid { grid-template-columns: 1fr; }
     .detail-header { flex-direction: column; align-items: flex-start; gap: 4px; }
   }
   @media print {
-    nav, .detail-actions, #estimate-panel .back-btn, .projects-grid { display: none !important; }
+    nav, .sidebar, .detail-actions, .panel-section .back-btn { display: none !important; }
+    .main { margin-left: 0; }
+    #page-projects { display: block !important; }
+    .projects-grid { display: none; }
     .detail-card { border: none; box-shadow: none; }
   }
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo">
-    <img src="images/icon.png" alt="">
-    Estimates<span>Pro</span>
-  </a>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="/" class="nav-logo">
+      <img src="images/icon.png" alt="">
+      Estimates<span>Pro</span>
+    </a>
+  </div>
   <div class="nav-right">
     <span class="nav-email" id="nav-email"></span>
-    <button class="btn-signout" id="btn-signout" style="display:none" onclick="signOut()">Sign Out</button>
+    <button class="btn-sm" id="btn-signout" style="display:none" onclick="signOut()">Sign Out</button>
   </div>
 </nav>
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
-  <!-- Step 1: Email -->
   <div class="auth-card" id="step-email">
     <div class="auth-icon">✉️</div>
     <div class="auth-title">Sign In or Sign Up</div>
@@ -159,7 +223,6 @@
     <button class="btn-primary" id="send-btn" onclick="sendCode()">Send Code</button>
   </div>
 
-  <!-- Step 2: Code -->
   <div class="auth-card" id="step-code" style="display:none">
     <div class="auth-icon">🔢</div>
     <div class="auth-title">Check Your Email</div>
@@ -174,58 +237,187 @@
     </div>
     <button class="btn-primary" id="verify-btn" onclick="verifyCode()">Confirm Code</button>
     <div class="auth-toggle">
-      <a onclick="backToEmail()" style="cursor:pointer">← Change email</a>
+      <a onclick="backToEmail()">← Change email</a>
       &nbsp;·&nbsp;
-      <a onclick="sendCode(true)" style="cursor:pointer">Resend code</a>
+      <a onclick="sendCode(true)">Resend code</a>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
-  <div class="dashboard-wrap">
-    <div class="dashboard-header">
-      <h1>My Projects</h1>
-    </div>
-    <div id="projects-loading" class="loading"><div class="spinner"></div></div>
-    <div id="projects-grid" class="projects-grid" style="display:none"></div>
-    <div id="projects-empty" class="empty" style="display:none">
-      <div class="empty-icon">📋</div>
-      <div style="font-size:16px;font-weight:600;margin-bottom:6px">No projects yet</div>
-      <div>Create estimates in the iOS or Android app, then sync to view them here.</div>
-    </div>
+<!-- APP SHELL -->
+<div id="app">
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-    <!-- ESTIMATES PANEL (shown when project clicked) -->
-    <div id="estimate-panel">
-      <div class="panel-header">
-        <button class="back-btn" onclick="closeProject()" title="Back">←</button>
-        <h2 id="panel-project-name"></h2>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">Main</div>
+    <button class="nav-item active" id="nav-projects" onclick="showPage('projects')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      Projects
+    </button>
+
+    <div class="sidebar-section" style="margin-top:8px">Account</div>
+    <button class="nav-item" id="nav-business" onclick="showPage('business')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Business Profile
+    </button>
+    <button class="nav-item" id="nav-account" onclick="showPage('account')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Account
+    </button>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="user-info">
+          <div class="user-email" id="sidebar-email"></div>
+          <div class="user-role">Contractor</div>
+        </div>
       </div>
-      <div class="estimates-list" id="estimates-list"></div>
+    </div>
+  </nav>
 
-      <!-- ESTIMATE DETAIL -->
-      <div id="estimate-detail">
-        <div class="detail-card">
-          <div class="detail-header">
-            <h3 id="detail-name"></h3>
-            <div class="grand-total" id="detail-total"></div>
-          </div>
-          <div class="detail-body" id="detail-body"></div>
-          <div class="detail-actions">
-            <button class="action-btn" onclick="exportCSV()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              Export CSV
-            </button>
-            <button class="action-btn" onclick="window.print()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-              Print
-            </button>
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- PROJECTS PAGE -->
+    <div class="page active" id="page-projects">
+      <div class="page-title">My Projects</div>
+      <div id="projects-loading" class="loading"><div class="spinner"></div></div>
+      <div id="projects-grid" class="projects-grid" style="display:none"></div>
+      <div id="projects-empty" class="empty" style="display:none">
+        <div class="empty-icon">📋</div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:6px">No projects yet</div>
+        <div style="font-size:14px">Create estimates in the iOS app, then sync to view them here.</div>
+      </div>
+
+      <!-- Estimate panel -->
+      <div class="panel-section" id="estimate-panel" style="display:none">
+        <div class="panel-header">
+          <button class="back-btn" onclick="closeProject()" title="Back to projects">←</button>
+          <h2 id="panel-project-name"></h2>
+        </div>
+        <div class="estimates-list" id="estimates-list"></div>
+
+        <div id="estimate-detail" style="display:none">
+          <div class="detail-card">
+            <div class="detail-header">
+              <h3 id="detail-name"></h3>
+              <div class="detail-grand" id="detail-total"></div>
+            </div>
+            <div class="detail-body" id="detail-body"></div>
+            <div class="detail-actions">
+              <button class="action-btn" onclick="exportCSV()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Export CSV
+              </button>
+              <button class="action-btn" onclick="window.print()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Print
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
+
+    <!-- BUSINESS PROFILE PAGE -->
+    <div class="page" id="page-business">
+      <div class="page-title">Business Profile</div>
+
+      <div class="hint-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Edit your profile in the iOS app — it syncs here automatically when you tap Sync in Account settings.
+      </div>
+
+      <div id="profile-loading" class="loading"><div class="spinner"></div></div>
+      <div id="profile-content" style="display:none">
+        <div class="profile-grid">
+          <div class="profile-card">
+            <h3>Company Info</h3>
+            <div class="profile-row"><div class="profile-label">Company Name</div><div class="profile-value" id="pr-name">—</div></div>
+            <div class="profile-row"><div class="profile-label">Contractor Type</div><div class="profile-value" id="pr-type">—</div></div>
+            <div class="profile-row"><div class="profile-label">License #</div><div class="profile-value" id="pr-license">—</div></div>
+            <div class="profile-row"><div class="profile-label">Website</div><div class="profile-value" id="pr-website">—</div></div>
+          </div>
+          <div class="profile-card">
+            <h3>Contact</h3>
+            <div class="profile-row"><div class="profile-label">Email</div><div class="profile-value" id="pr-email">—</div></div>
+            <div class="profile-row"><div class="profile-label">Phone</div><div class="profile-value" id="pr-phone">—</div></div>
+            <div class="profile-row"><div class="profile-label">Address</div><div class="profile-value" id="pr-address">—</div></div>
+          </div>
+          <div class="profile-card">
+            <h3>Estimate Defaults</h3>
+            <div class="profile-row"><div class="profile-label">Default Markup</div><div class="profile-value" id="pr-markup">—</div></div>
+            <div class="profile-row"><div class="profile-label">Default Tax</div><div class="profile-value" id="pr-tax">—</div></div>
+            <div class="profile-row"><div class="profile-label">Quote Valid</div><div class="profile-value" id="pr-validity">—</div></div>
+            <div class="profile-row"><div class="profile-label">Payment Terms</div><div class="profile-value" id="pr-terms">—</div></div>
+          </div>
+          <div class="profile-card">
+            <h3>Payment Info</h3>
+            <div class="profile-row"><div class="profile-label">Methods</div><div class="profile-value" id="pr-methods">—</div></div>
+            <div class="profile-row"><div class="profile-label">Details</div><div class="profile-value" id="pr-payment-details">—</div></div>
+          </div>
+        </div>
+
+        <div class="profile-card" style="margin-top:16px">
+          <h3>My Prices &amp; Service Rates</h3>
+          <div id="rates-content"></div>
+        </div>
+      </div>
+
+      <div id="profile-empty" class="empty" style="display:none">
+        <div class="empty-icon">🏢</div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:6px">No profile synced yet</div>
+        <div style="font-size:14px">Set up your business in the iOS app, sign in here, then tap Sync.</div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT PAGE -->
+    <div class="page" id="page-account">
+      <div class="page-title">Account</div>
+
+      <div class="account-card">
+        <h3>Profile</h3>
+        <div class="account-row">
+          <label>Email</label>
+          <span class="val" id="acct-email">—</span>
+        </div>
+        <div class="account-row">
+          <label>Account type</label>
+          <span class="val"><span class="tag">Free</span></span>
+        </div>
+        <div class="account-row">
+          <label>Projects synced</label>
+          <span class="val" id="acct-projects">—</span>
+        </div>
+      </div>
+
+      <div class="account-card">
+        <h3>Cloud Sync</h3>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:14px">
+          Your estimates sync automatically when you use the iOS app.<br>
+          To force a sync, open the app → Account → Sync Now.
+        </div>
+        <div class="account-row">
+          <label>iOS app</label>
+          <span class="val">
+            <a href="https://apps.apple.com/app/id6758105341" target="_blank" style="color:var(--blue);font-weight:600;text-decoration:none">Download on App Store →</a>
+          </span>
+        </div>
+      </div>
+
+      <div class="account-card">
+        <h3>Session</h3>
+        <button class="btn-danger" onclick="signOut()" style="margin-top:4px">Sign Out</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
 
 <script>
 const { createClient } = supabase
@@ -234,28 +426,29 @@ const sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzaGZ4bWZ6cWxvbHNwcGlja3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2OTIyMDEsImV4cCI6MjA5NDI2ODIwMX0.DptKa0G8LyeWSmtsMSK-8w7kIc19VyWfrulln9VUHf0'
 )
 
-// ─── State ────────────────────────────────────────
+// ── State ──────────────────────────────────────
 let projects = []
 let currentEstimate = null
 let otpEmail = ''
+let currentPage = 'projects'
 
-// ─── Helpers ──────────────────────────────────────
+// ── Helpers ────────────────────────────────────
 const $ = id => document.getElementById(id)
 const fmt = v => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v || 0)
 const fmtDate = s => { try { return new Date(s).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) } catch { return '' } }
+const val = (v, fallback = '—') => v || fallback
 
 function statusBadge(s) {
   const map = { DRAFT:'badge-draft', ESTIMATED:'badge-estimated', SENT:'badge-sent', APPROVED:'badge-approved', COMPLETED:'badge-completed', ARCHIVED:'badge-draft' }
-  return `<span class="badge ${map[s] || 'badge-draft'}">${(s||'').toLowerCase()}</span>`
+  return `<span class="badge ${map[s] || 'badge-draft'}">${(s||'draft').toLowerCase()}</span>`
 }
 
-// ─── Auth (OTP) ────────────────────────────────────
+// ── Auth (OTP) ─────────────────────────────────
 sb.auth.onAuthStateChange((event, session) => {
   if (session) {
-    showDashboard(session.user)
-    loadProjects()
+    onLoggedIn(session.user)
   } else {
-    showAuth()
+    onLoggedOut()
   }
 })
 
@@ -311,45 +504,74 @@ async function signOut() {
   await sb.auth.signOut()
 }
 
-// ─── Views ─────────────────────────────────────────
-function showAuth() {
-  $('auth-screen').style.display = 'flex'
-  $('dashboard').style.display = 'none'
-  $('btn-signout').style.display = 'none'
-  $('nav-email').textContent = ''
-}
-
-function showDashboard(user) {
+// ── View switching ─────────────────────────────
+function onLoggedIn(user) {
   $('auth-screen').style.display = 'none'
-  $('dashboard').style.display = 'block'
+  $('app').style.display = 'block'
   $('btn-signout').style.display = 'block'
   $('nav-email').textContent = user.email
+  $('sidebar-email').textContent = user.email
+  $('acct-email').textContent = user.email
+  loadProjects()
+  loadBusinessProfile()
 }
 
-// ─── Projects ──────────────────────────────────────
+function onLoggedOut() {
+  $('auth-screen').style.display = 'flex'
+  $('app').style.display = 'none'
+  $('btn-signout').style.display = 'none'
+  $('nav-email').textContent = ''
+  $('step-email').style.display = 'flex'
+  $('step-code').style.display = 'none'
+  $('otp-code').value = ''
+  projects = []
+}
+
+function showPage(name) {
+  currentPage = name
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+  $('page-' + name).classList.add('active')
+  $('nav-' + name).classList.add('active')
+  closeSidebar()
+}
+
+// ── Sidebar (mobile) ───────────────────────────
+function toggleSidebar() {
+  $('sidebar').classList.toggle('open')
+  $('sidebar-overlay').classList.toggle('open')
+}
+function closeSidebar() {
+  $('sidebar').classList.remove('open')
+  $('sidebar-overlay').classList.remove('open')
+}
+
+// ── Projects ───────────────────────────────────
 async function loadProjects() {
   $('projects-loading').style.display = 'block'
   $('projects-grid').style.display = 'none'
   $('projects-empty').style.display = 'none'
+  $('estimate-panel').style.display = 'none'
 
   const { data, error } = await sb.from('projects').select('id, data, updated_at').order('updated_at', { ascending: false })
   $('projects-loading').style.display = 'none'
 
-  if (error || !data) { $('projects-empty').style.display = 'block'; return }
+  if (error || !data || data.length === 0) { $('projects-empty').style.display = 'block'; return }
 
-  projects = (data || []).map(r => r.data).filter(Boolean)
+  projects = data.map(r => r.data).filter(Boolean)
   if (projects.length === 0) { $('projects-empty').style.display = 'block'; return }
+
+  $('acct-projects').textContent = projects.length
 
   $('projects-grid').style.display = 'grid'
   $('projects-grid').innerHTML = projects.map((p, i) => {
-    const topEstimate = (p.estimates || [])[0]
-    const total = topEstimate ? topEstimate.grandTotal : 0
+    const top = (p.estimates || [])[0]
     return `
       <div class="project-card" onclick="openProject(${i})">
-        <div class="project-name">${esc(p.name || 'Untitled Project')}</div>
+        <div class="project-name">${esc(p.name || 'Untitled')}</div>
         <div class="project-client">${p.clientName ? esc(p.clientName) : fmtDate(p.createdDate)}</div>
         <div class="project-footer">
-          <div class="project-total">${total > 0 ? fmt(total) : '—'}</div>
+          <div class="project-total">${top && top.grandTotal > 0 ? fmt(top.grandTotal) : '—'}</div>
           ${statusBadge(p.status)}
         </div>
       </div>`
@@ -368,15 +590,12 @@ function openProject(idx) {
     ? `<div class="empty"><div class="empty-icon">📄</div><div>No estimates in this project</div></div>`
     : estimates.map((e, i) => `
         <div class="estimate-row" onclick="openEstimate(${idx},${i})">
-          <div class="estimate-info">
-            <div class="est-name">${esc(e.name || 'Estimate')}</div>
-            <div class="est-date">${fmtDate(e.createdDate)}</div>
-          </div>
+          <div><div class="est-name">${esc(e.name || 'Estimate')}</div><div class="est-date">${fmtDate(e.createdDate)}</div></div>
           <div class="estimate-total">${fmt(e.grandTotal)}</div>
         </div>`).join('')
 
   $('estimate-panel').style.display = 'block'
-  setTimeout(() => $('estimate-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  setTimeout(() => $('estimate-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
 }
 
 function closeProject() {
@@ -385,17 +604,16 @@ function closeProject() {
   document.querySelectorAll('.project-card').forEach(c => c.classList.remove('active'))
 }
 
-// ─── Estimate Detail ───────────────────────────────
+// ── Estimate Detail ────────────────────────────
 function openEstimate(pidx, eidx) {
   const est = projects[pidx].estimates[eidx]
   currentEstimate = est
   document.querySelectorAll('.estimate-row').forEach((r, i) => r.classList.toggle('active', i === eidx))
-
   $('detail-name').textContent = est.name || 'Estimate'
   $('detail-total').textContent = fmt(est.grandTotal)
   $('detail-body').innerHTML = renderEstimateBody(est)
   $('estimate-detail').style.display = 'block'
-  setTimeout(() => $('estimate-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  setTimeout(() => $('estimate-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
 }
 
 function closeEstimateDetail() {
@@ -407,51 +625,25 @@ function closeEstimateDetail() {
 function renderEstimateBody(est) {
   let html = ''
 
-  // Sections (new format)
   if (est.sections && est.sections.length > 0) {
     for (const sec of est.sections) {
       const rows = [
-        ...(sec.materialItems || []).map(i => `
-          <tr><td>${esc(i.description)}</td><td class="td-muted">Material</td>
-          <td class="td-right">${i.quantity} ${esc(i.unit)}</td>
-          <td class="td-right">${fmt(i.unitCost)}</td>
-          <td class="td-right">${fmt(i.totalCost)}</td></tr>`),
-        ...(sec.laborItems || []).map(i => `
-          <tr><td>${esc(i.trade)}${i.description ? ': ' + esc(i.description) : ''}</td><td class="td-muted">Labor</td>
-          <td class="td-right">${i.hours}h × ${i.workers}</td>
-          <td class="td-right">${fmt(i.rate)}/hr</td>
-          <td class="td-right">${fmt(i.total)}</td></tr>`)
+        ...(sec.materialItems || []).map(i => `<tr><td>${esc(i.description)}</td><td class="td-m">Material</td><td class="td-r">${i.quantity} ${esc(i.unit)}</td><td class="td-r">${fmt(i.unitCost)}</td><td class="td-r">${fmt(i.totalCost)}</td></tr>`),
+        ...(sec.laborItems || []).map(i => `<tr><td>${esc(i.trade)}${i.description ? ': '+esc(i.description):''}</td><td class="td-m">Labor</td><td class="td-r">${i.hours}h × ${i.workers}</td><td class="td-r">${fmt(i.rate)}/hr</td><td class="td-r">${fmt(i.total)}</td></tr>`)
       ]
-      if (rows.length === 0) continue
-      html += `<div class="section-block">
-        <div class="section-title">${esc(sec.name)}</div>
-        <table><thead><tr><th>Description</th><th>Type</th><th class="td-right">Qty</th><th class="td-right">Rate</th><th class="td-right">Total</th></tr></thead>
-        <tbody>${rows.join('')}</tbody></table></div>`
+      if (!rows.length) continue
+      html += `<div class="section-block"><div class="section-label">${esc(sec.name)}</div><table><thead><tr><th>Description</th><th>Type</th><th class="td-r">Qty</th><th class="td-r">Rate</th><th class="td-r">Total</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`
     }
   } else {
-    // Legacy flat format
-    const materials = est.lineItems || []
-    const labor = est.laborItems || []
-    if (materials.length > 0) {
-      html += `<div class="section-block"><div class="section-title">Materials</div>
-        <table><thead><tr><th>Description</th><th class="td-right">Qty</th><th>Unit</th><th class="td-right">Unit Cost</th><th class="td-right">Total</th></tr></thead>
-        <tbody>${materials.map(i => `<tr><td>${esc(i.description)}</td><td class="td-right">${i.quantity}</td><td class="td-muted">${esc(i.unit)}</td><td class="td-right">${fmt(i.unitCost)}</td><td class="td-right">${fmt(i.totalCost)}</td></tr>`).join('')}</tbody></table></div>`
-    }
-    if (labor.length > 0) {
-      html += `<div class="section-block"><div class="section-title">Labor</div>
-        <table><thead><tr><th>Trade</th><th class="td-right">Hours</th><th class="td-right">Workers</th><th class="td-right">Rate</th><th class="td-right">Total</th></tr></thead>
-        <tbody>${labor.map(i => `<tr><td>${esc(i.trade)}${i.description ? ': '+esc(i.description) : ''}</td><td class="td-right">${i.hours}h</td><td class="td-right">${i.workers}</td><td class="td-right">${fmt(i.rate)}/hr</td><td class="td-right">${fmt(i.total)}</td></tr>`).join('')}</tbody></table></div>`
-    }
+    const mats = est.lineItems || [], lab = est.laborItems || []
+    if (mats.length) html += `<div class="section-block"><div class="section-label">Materials</div><table><thead><tr><th>Description</th><th class="td-r">Qty</th><th>Unit</th><th class="td-r">Unit Cost</th><th class="td-r">Total</th></tr></thead><tbody>${mats.map(i=>`<tr><td>${esc(i.description)}</td><td class="td-r">${i.quantity}</td><td class="td-m">${esc(i.unit)}</td><td class="td-r">${fmt(i.unitCost)}</td><td class="td-r">${fmt(i.totalCost)}</td></tr>`).join('')}</tbody></table></div>`
+    if (lab.length) html += `<div class="section-block"><div class="section-label">Labor</div><table><thead><tr><th>Trade</th><th class="td-r">Hours</th><th class="td-r">Workers</th><th class="td-r">Rate</th><th class="td-r">Total</th></tr></thead><tbody>${lab.map(i=>`<tr><td>${esc(i.trade)}${i.description?': '+esc(i.description):''}</td><td class="td-r">${i.hours}h</td><td class="td-r">${i.workers}</td><td class="td-r">${fmt(i.rate)}/hr</td><td class="td-r">${fmt(i.total)}</td></tr>`).join('')}</tbody></table></div>`
   }
 
-  // Permits
   if (est.permitsItems && est.permitsItems.length > 0) {
-    html += `<div class="section-block"><div class="section-title">Permits & Fees</div>
-      <table><thead><tr><th>Description</th><th class="td-right">Amount</th></tr></thead>
-      <tbody>${est.permitsItems.map(i => `<tr><td>${esc(i.description)}</td><td class="td-right">${fmt(i.totalCost)}</td></tr>`).join('')}</tbody></table></div>`
+    html += `<div class="section-block"><div class="section-label">Permits &amp; Fees</div><table><thead><tr><th>Description</th><th class="td-r">Amount</th></tr></thead><tbody>${est.permitsItems.map(i=>`<tr><td>${esc(i.description)}</td><td class="td-r">${fmt(i.totalCost)}</td></tr>`).join('')}</tbody></table></div>`
   }
 
-  // Totals
   html += `<div class="totals-section">`
   const totals = [
     ['Materials', est.materialsCost],
@@ -463,23 +655,76 @@ function renderEstimateBody(est) {
     est.markupAmount > 0 ? [`Markup (${est.markupPercent}%)`, est.markupAmount] : null,
     est.taxAmount > 0 ? [`Tax (${est.taxPercent}%)`, est.taxAmount] : null,
   ].filter(Boolean)
-  totals.forEach(([label, val]) => {
-    html += `<div class="total-row"><span>${label}</span><span>${fmt(val)}</span></div>`
-  })
-  html += `<div class="total-row grand"><span>TOTAL</span><span>${fmt(est.grandTotal)}</span></div>`
-  html += `</div>`
-
+  totals.forEach(([l, v]) => html += `<div class="total-row"><span>${l}</span><span>${fmt(v)}</span></div>`)
+  html += `<div class="total-row grand"><span>TOTAL</span><span>${fmt(est.grandTotal)}</span></div></div>`
   return html
 }
 
-// ─── Export CSV ────────────────────────────────────
+// ── Business Profile ───────────────────────────
+async function loadBusinessProfile() {
+  $('profile-loading').style.display = 'block'
+  $('profile-content').style.display = 'none'
+  $('profile-empty').style.display = 'none'
+
+  const { data, error } = await sb.from('business_profiles').select('data, rates_data').limit(1).maybeSingle()
+  $('profile-loading').style.display = 'none'
+
+  if (error || !data) { $('profile-empty').style.display = 'block'; return }
+
+  const bi = data.data || {}
+  const rates = data.rates_data || []
+
+  // Company
+  setText('pr-name', bi.name)
+  setText('pr-type', bi.contractorType)
+  setText('pr-license', bi.licenseNumber)
+  const websiteEl = $('pr-website')
+  if (bi.website) {
+    websiteEl.innerHTML = `<a href="${esc(bi.website)}" target="_blank" style="color:var(--blue)">${esc(bi.website)}</a>`
+  } else { websiteEl.textContent = '—'; websiteEl.className = 'profile-value empty' }
+
+  // Contact
+  setText('pr-email', bi.email)
+  setText('pr-phone', bi.phone)
+  const addrParts = [bi.street, bi.city, bi.state, bi.zipCode, bi.country].filter(Boolean)
+  setText('pr-address', addrParts.join(', '))
+
+  // Defaults
+  setText('pr-markup', bi.defaultMarkupPercent != null ? bi.defaultMarkupPercent + '%' : null)
+  setText('pr-tax', bi.defaultTaxPercent != null ? bi.defaultTaxPercent + '%' : null)
+  setText('pr-validity', bi.quoteValidityDays ? bi.quoteValidityDays + ' days' : null)
+  setText('pr-terms', bi.paymentTerms)
+  setText('pr-methods', bi.paymentMethods)
+  setText('pr-payment-details', bi.paymentDetails)
+
+  // Rates
+  const ratesEl = $('rates-content')
+  if (!rates.length) {
+    ratesEl.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0">No rates configured yet. Add them in the iOS app.</div>`
+  } else {
+    const typeLabel = { HOURLY:'Hourly', PER_UNIT:'Per Unit', FLAT_RATE:'Flat Rate' }
+    ratesEl.innerHTML = `<table class="rates-table"><thead><tr><th>Service</th><th>Category</th><th>Type</th><th style="text-align:right">Rate</th><th style="text-align:right">Unit</th></tr></thead><tbody>${
+      rates.map(r => `<tr><td>${esc(r.serviceName)}</td><td class="td-m">${esc(r.category)}</td><td class="td-m">${typeLabel[r.rateType] || r.rateType}</td><td style="text-align:right;font-weight:600">${fmt(r.rate)}</td><td style="text-align:right;color:var(--muted)">${esc(r.unit)}</td></tr>`).join('')
+    }</tbody></table>`
+  }
+
+  $('profile-content').style.display = 'block'
+}
+
+function setText(id, value) {
+  const el = $(id)
+  if (!el) return
+  if (value) { el.textContent = value; el.className = 'profile-value' }
+  else { el.textContent = '—'; el.className = 'profile-value empty' }
+}
+
+// ── Export CSV ─────────────────────────────────
 function exportCSV() {
   if (!currentEstimate) return
   const est = currentEstimate
   const rows = []
-
-  const q = s => '"' + String(s || '').replace(/"/g, '""') + '"'
-  const c = v => (v || 0).toFixed(2)
+  const q = s => '"' + String(s||'').replace(/"/g,'""') + '"'
+  const c = v => (v||0).toFixed(2)
 
   rows.push([q('Estimate'), q(est.name)].join(','))
   rows.push([q('Date'), q(fmtDate(est.createdDate))].join(','))
@@ -488,27 +733,17 @@ function exportCSV() {
 
   if (est.sections && est.sections.length > 0) {
     for (const sec of est.sections) {
-      for (const i of sec.materialItems || []) {
-        rows.push([q(sec.name), q('Material'), q(i.description), i.quantity.toFixed(2), q(i.unit), c(i.unitCost), c(i.totalCost)].join(','))
-      }
-      for (const i of sec.laborItems || []) {
-        const desc = i.trade + (i.description ? ': ' + i.description : '')
-        rows.push([q(sec.name), q('Labor'), q(desc), i.hours.toFixed(2), q('hrs'), c(i.rate), c(i.total)].join(','))
-      }
+      for (const i of sec.materialItems || []) rows.push([q(sec.name), q('Material'), q(i.description), i.quantity.toFixed(2), q(i.unit), c(i.unitCost), c(i.totalCost)].join(','))
+      for (const i of sec.laborItems || []) rows.push([q(sec.name), q('Labor'), q(i.trade+(i.description?': '+i.description:'')), i.hours.toFixed(2), q('hrs'), c(i.rate), c(i.total)].join(','))
     }
   } else {
-    for (const i of est.lineItems || []) {
-      rows.push([q(i.category || 'Material'), q('Material'), q(i.description), i.quantity.toFixed(2), q(i.unit), c(i.unitCost), c(i.totalCost)].join(','))
-    }
-    for (const i of est.laborItems || []) {
-      rows.push([q('Labor'), q('Labor'), q(i.trade + (i.description ? ': '+i.description : '')), i.hours.toFixed(2), q('hrs'), c(i.rate), c(i.total)].join(','))
-    }
+    for (const i of est.lineItems || []) rows.push([q(i.category||'Material'), q('Material'), q(i.description), i.quantity.toFixed(2), q(i.unit), c(i.unitCost), c(i.totalCost)].join(','))
+    for (const i of est.laborItems || []) rows.push([q('Labor'), q('Labor'), q(i.trade+(i.description?': '+i.description:'')), i.hours.toFixed(2), q('hrs'), c(i.rate), c(i.total)].join(','))
   }
 
   rows.push('')
-  const totalRows = [
-    ['Materials', est.materialsCost],
-    ['Labor', est.laborCost],
+  const totRows = [
+    ['Materials', est.materialsCost], ['Labor', est.laborCost],
     est.equipmentCost > 0 ? ['Equipment', est.equipmentCost] : null,
     est.permitsCost > 0 ? ['Permits & Fees', est.permitsCost] : null,
     est.contingencyAmount > 0 ? [`Contingency (${est.contingencyPercent}%)`, est.contingencyAmount] : null,
@@ -517,20 +752,16 @@ function exportCSV() {
     est.taxAmount > 0 ? [`Tax (${est.taxPercent}%)`, est.taxAmount] : null,
     ['TOTAL', est.grandTotal],
   ].filter(Boolean)
-  totalRows.forEach(([label, val]) => rows.push(',,,,,' + q(label) + ',' + c(val)))
+  totRows.forEach(([l, v]) => rows.push(',,,,,'+q(l)+','+c(v)))
 
-  const csv = rows.join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = (est.name || 'estimate').replace(/[^a-zA-Z0-9 ]/g, '').trim() + '.csv'
-  a.click()
+  const a = document.createElement('a'); a.href = url; a.download = (est.name||'estimate').replace(/[^a-zA-Z0-9 ]/g,'').trim()+'.csv'; a.click()
   URL.revokeObjectURL(url)
 }
 
 function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 }
 </script>
 </body>

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Estimates Pro</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --blue: #1565C0;
+    --blue-dark: #0D47A1;
+    --blue-light: #E3F2FD;
+    --bg: #F5F7FA;
+    --white: #fff;
+    --text: #1C1C1E;
+    --muted: #6E6E73;
+    --border: #E5E7EB;
+    --green: #2E7D32;
+    --orange: #E65100;
+    --red: #C62828;
+    --purple: #6A1B9A;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* NAV */
+  nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; text-decoration: none; color: var(--text); }
+  .nav-logo img { width: 28px; height: 28px; border-radius: 6px; }
+  .nav-logo span { color: var(--blue); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-email { font-size: 13px; color: var(--muted); }
+  .btn-signout { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .btn-signout:hover { border-color: var(--red); color: var(--red); }
+
+  /* AUTH SCREEN */
+  #auth-screen { min-height: calc(100vh - 56px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .auth-card { background: var(--white); border-radius: 16px; padding: 36px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  .auth-icon { font-size: 40px; text-align: center; margin-bottom: 12px; }
+  .auth-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+  .auth-sub { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 24px; }
+  .form-field { margin-bottom: 14px; }
+  .form-field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .4px; }
+  .form-field input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; }
+  .form-field input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-light); }
+  .btn-primary { width: 100%; background: var(--blue); color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+  .btn-primary:hover { background: var(--blue-dark); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .auth-toggle { text-align: center; margin-top: 16px; font-size: 14px; color: var(--muted); }
+  .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 500; cursor: pointer; }
+  .error-msg { background: #FFEBEE; color: var(--red); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; }
+
+  /* DASHBOARD */
+  #dashboard { display: none; }
+  .dashboard-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+  .dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .dashboard-header h1 { font-size: 22px; font-weight: 700; }
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+  /* PROJECT CARD */
+  .project-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; cursor: pointer; transition: box-shadow .15s; }
+  .project-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .project-card.active { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-light); }
+  .project-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .project-client { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .project-footer { display: flex; align-items: center; justify-content: space-between; }
+  .project-total { font-size: 15px; font-weight: 700; color: var(--blue); }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+  .badge-draft    { background: #F5F5F5; color: #666; }
+  .badge-estimated{ background: var(--blue-light); color: var(--blue); }
+  .badge-sent     { background: #FFF3E0; color: var(--orange); }
+  .badge-approved { background: #E8F5E9; color: var(--green); }
+  .badge-completed{ background: #F3E5F5; color: var(--purple); }
+
+  /* ESTIMATES PANEL */
+  #estimate-panel { display: none; }
+  .panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; margin-top: 28px; }
+  .panel-header h2 { font-size: 18px; font-weight: 700; }
+  .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); line-height: 1; }
+  .estimates-list { display: flex; flex-direction: column; gap: 12px; }
+  .estimate-row { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: box-shadow .15s; }
+  .estimate-row:hover { box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+  .estimate-row.active { border-color: var(--blue); }
+  .estimate-info .est-name { font-size: 15px; font-weight: 600; }
+  .estimate-info .est-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .estimate-total { font-size: 18px; font-weight: 700; color: var(--blue); }
+
+  /* ESTIMATE DETAIL */
+  #estimate-detail { display: none; margin-top: 24px; }
+  .detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .detail-header { background: var(--blue); color: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .detail-header h3 { font-size: 17px; font-weight: 700; }
+  .detail-header .grand-total { font-size: 22px; font-weight: 800; }
+  .detail-body { padding: 16px 20px; }
+  .detail-actions { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border); background: #FAFAFA; flex-wrap: wrap; }
+  .action-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text); }
+  .action-btn:hover { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+  .action-btn svg { width: 15px; height: 15px; }
+
+  /* SECTION TABLE */
+  .section-block { margin-bottom: 16px; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--blue); background: var(--blue-light); padding: 5px 10px; border-radius: 4px; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 6px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  td { padding: 7px 8px; border-bottom: 1px solid #F5F5F5; }
+  tr:last-child td { border-bottom: none; }
+  .td-right { text-align: right; }
+  .td-muted { color: var(--muted); }
+
+  /* TOTALS */
+  .totals-section { border-top: 2px solid var(--border); padding-top: 12px; margin-top: 8px; }
+  .total-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+  .total-row.grand { font-size: 17px; font-weight: 800; color: var(--blue); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
+
+  /* EMPTY / LOADING */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading { text-align: center; padding: 60px; }
+
+  @media (max-width: 600px) {
+    .projects-grid { grid-template-columns: 1fr; }
+    .detail-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+  }
+  @media print {
+    nav, .detail-actions, #estimate-panel .back-btn, .projects-grid { display: none !important; }
+    .detail-card { border: none; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="images/icon.png" alt="">
+    Estimates<span>Pro</span>
+  </a>
+  <div class="nav-right">
+    <span class="nav-email" id="nav-email"></span>
+    <button class="btn-signout" id="btn-signout" style="display:none" onclick="signOut()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-icon">🔐</div>
+    <div class="auth-title" id="auth-title">Sign In</div>
+    <div class="auth-sub" id="auth-sub">Access your estimates from any device</div>
+    <div id="auth-error" class="error-msg" style="display:none"></div>
+    <div class="form-field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="auth-btn" onclick="handleAuth()">Sign In</button>
+    <div class="auth-toggle">
+      <span id="toggle-text">Don't have an account?</span>
+      <a onclick="toggleMode()"> <span id="toggle-link">Create one</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="dashboard-wrap">
+    <div class="dashboard-header">
+      <h1>My Projects</h1>
+    </div>
+    <div id="projects-loading" class="loading"><div class="spinner"></div></div>
+    <div id="projects-grid" class="projects-grid" style="display:none"></div>
+    <div id="projects-empty" class="empty" style="display:none">
+      <div class="empty-icon">📋</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:6px">No projects yet</div>
+      <div>Create estimates in the iOS or Android app, then sync to view them here.</div>
+    </div>
+
+    <!-- ESTIMATES PANEL (shown when project clicked) -->
+    <div id="estimate-panel">
+      <div class="panel-header">
+        <button class="back-btn" onclick="closeProject()" title="Back">←</button>
+        <h2 id="panel-project-name"></h2>
+      </div>
+      <div class="estimates-list" id="estimates-list"></div>
+
+      <!-- ESTIMATE DETAIL -->
+      <div id="estimate-detail">
+        <div class="detail-card">
+          <div class="detail-header">
+            <h3 id="detail-name"></h3>
+            <div class="grand-total" id="detail-total"></div>
+          </div>
+          <div class="detail-body" id="detail-body"></div>
+          <div class="detail-actions">
+            <button class="action-btn" onclick="exportCSV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Export CSV
+            </button>
+            <button class="action-btn" onclick="window.print()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Print
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase
+const sb = createClient(
+  'https://ushfxmfzqlolsppickus.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzaGZ4bWZ6cWxvbHNwcGlja3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2OTIyMDEsImV4cCI6MjA5NDI2ODIwMX0.DptKa0G8LyeWSmtsMSK-8w7kIc19VyWfrulln9VUHf0'
+)
+
+// ─── State ────────────────────────────────────────
+let projects = []
+let currentEstimate = null
+let isSignUp = false
+
+// ─── Helpers ──────────────────────────────────────
+const $ = id => document.getElementById(id)
+const fmt = v => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v || 0)
+const fmtDate = s => { try { return new Date(s).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) } catch { return '' } }
+
+function statusBadge(s) {
+  const map = { DRAFT:'badge-draft', ESTIMATED:'badge-estimated', SENT:'badge-sent', APPROVED:'badge-approved', COMPLETED:'badge-completed', ARCHIVED:'badge-draft' }
+  return `<span class="badge ${map[s] || 'badge-draft'}">${(s||'').toLowerCase()}</span>`
+}
+
+// ─── Auth ──────────────────────────────────────────
+sb.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    showDashboard(session.user)
+    loadProjects()
+  } else {
+    showAuth()
+  }
+})
+
+function toggleMode() {
+  isSignUp = !isSignUp
+  $('auth-title').textContent = isSignUp ? 'Create Account' : 'Sign In'
+  $('auth-sub').textContent = isSignUp ? 'Sync your estimates across all devices' : 'Access your estimates from any device'
+  $('auth-btn').textContent = isSignUp ? 'Create Account' : 'Sign In'
+  $('toggle-text').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?"
+  $('toggle-link').textContent = isSignUp ? 'Sign In' : 'Create one'
+  $('auth-error').style.display = 'none'
+  $('password').autocomplete = isSignUp ? 'new-password' : 'current-password'
+}
+
+async function handleAuth() {
+  const email = $('email').value.trim()
+  const password = $('password').value
+  if (!email || !password) return
+  $('auth-btn').disabled = true
+  $('auth-btn').textContent = '...'
+  $('auth-error').style.display = 'none'
+  try {
+    const { error } = isSignUp
+      ? await sb.auth.signUp({ email, password })
+      : await sb.auth.signInWithPassword({ email, password })
+    if (error) throw error
+  } catch (e) {
+    $('auth-error').textContent = e.message
+    $('auth-error').style.display = 'block'
+    $('auth-btn').disabled = false
+    $('auth-btn').textContent = isSignUp ? 'Create Account' : 'Sign In'
+  }
+}
+
+$('email').addEventListener('keydown', e => e.key === 'Enter' && $('password').focus())
+$('password').addEventListener('keydown', e => e.key === 'Enter' && handleAuth())
+
+async function signOut() {
+  await sb.auth.signOut()
+}
+
+// ─── Views ─────────────────────────────────────────
+function showAuth() {
+  $('auth-screen').style.display = 'flex'
+  $('dashboard').style.display = 'none'
+  $('btn-signout').style.display = 'none'
+  $('nav-email').textContent = ''
+}
+
+function showDashboard(user) {
+  $('auth-screen').style.display = 'none'
+  $('dashboard').style.display = 'block'
+  $('btn-signout').style.display = 'block'
+  $('nav-email').textContent = user.email
+}
+
+// ─── Projects ──────────────────────────────────────
+async function loadProjects() {
+  $('projects-loading').style.display = 'block'
+  $('projects-grid').style.display = 'none'
+  $('projects-empty').style.display = 'none'
+
+  const { data, error } = await sb.from('projects').select('id, data, updated_at').order('updated_at', { ascending: false })
+  $('projects-loading').style.display = 'none'
+
+  if (error || !data) { $('projects-empty').style.display = 'block'; return }
+
+  projects = (data || []).map(r => r.data).filter(Boolean)
+  if (projects.length === 0) { $('projects-empty').style.display = 'block'; return }
+
+  $('projects-grid').style.display = 'grid'
+  $('projects-grid').innerHTML = projects.map((p, i) => {
+    const topEstimate = (p.estimates || [])[0]
+    const total = topEstimate ? topEstimate.grandTotal : 0
+    return `
+      <div class="project-card" onclick="openProject(${i})">
+        <div class="project-name">${esc(p.name || 'Untitled Project')}</div>
+        <div class="project-client">${p.clientName ? esc(p.clientName) : fmtDate(p.createdDate)}</div>
+        <div class="project-footer">
+          <div class="project-total">${total > 0 ? fmt(total) : '—'}</div>
+          ${statusBadge(p.status)}
+        </div>
+      </div>`
+  }).join('')
+}
+
+function openProject(idx) {
+  const p = projects[idx]
+  closeEstimateDetail()
+  document.querySelectorAll('.project-card').forEach((c, i) => c.classList.toggle('active', i === idx))
+
+  $('panel-project-name').textContent = p.name || 'Project'
+  const estimates = p.estimates || []
+
+  $('estimates-list').innerHTML = estimates.length === 0
+    ? `<div class="empty"><div class="empty-icon">📄</div><div>No estimates in this project</div></div>`
+    : estimates.map((e, i) => `
+        <div class="estimate-row" onclick="openEstimate(${idx},${i})">
+          <div class="estimate-info">
+            <div class="est-name">${esc(e.name || 'Estimate')}</div>
+            <div class="est-date">${fmtDate(e.createdDate)}</div>
+          </div>
+          <div class="estimate-total">${fmt(e.grandTotal)}</div>
+        </div>`).join('')
+
+  $('estimate-panel').style.display = 'block'
+  setTimeout(() => $('estimate-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+}
+
+function closeProject() {
+  $('estimate-panel').style.display = 'none'
+  closeEstimateDetail()
+  document.querySelectorAll('.project-card').forEach(c => c.classList.remove('active'))
+}
+
+// ─── Estimate Detail ───────────────────────────────
+function openEstimate(pidx, eidx) {
+  const est = projects[pidx].estimates[eidx]
+  currentEstimate = est
+  document.querySelectorAll('.estimate-row').forEach((r, i) => r.classList.toggle('active', i === eidx))
+
+  $('detail-name').textContent = est.name || 'Estimate'
+  $('detail-total').textContent = fmt(est.grandTotal)
+  $('detail-body').innerHTML = renderEstimateBody(est)
+  $('estimate-detail').style.display = 'block'
+  setTimeout(() => $('estimate-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+}
+
+function closeEstimateDetail() {
+  currentEstimate = null
+  $('estimate-detail').style.display = 'none'
+  document.querySelectorAll('.estimate-row').forEach(r => r.classList.remove('active'))
+}
+
+function renderEstimateBody(est) {
+  let html = ''
+
+  // Sections (new format)
+  if (est.sections && est.sections.length > 0) {
+    for (const sec of est.sections) {
+      const rows = [
+        ...(sec.materialItems || []).map(i => `
+          <tr><td>${esc(i.description)}</td><td class="td-muted">Material</td>
+          <td class="td-right">${i.quantity} ${esc(i.unit)}</td>
+          <td class="td-right">${fmt(i.unitCost)}</td>
+          <td class="td-right">${fmt(i.totalCost)}</td></tr>`),
+        ...(sec.laborItems || []).map(i => `
+          <tr><td>${esc(i.trade)}${i.description ? ': ' + esc(i.description) : ''}</td><td class="td-muted">Labor</td>
+          <td class="td-right">${i.hours}h × ${i.workers}</td>
+          <td class="td-right">${fmt(i.rate)}/hr</td>
+          <td class="td-right">${fmt(i.total)}</td></tr>`)
+      ]
+      if (rows.length === 0) continue
+      html += `<div class="section-block">
+        <div class="section-title">${esc(sec.name)}</div>
+        <table><thead><tr><th>Description</th><th>Type</th><th class="td-right">Qty</th><th class="td-right">Rate</th><th class="td-right">Total</th></tr></thead>
+        <tbody>${rows.join('')}</tbody></table></div>`
+    }
+  } else {
+    // Legacy flat format
+    const materials = est.lineItems || []
+    const labor = est.laborItems || []
+    if (materials.length > 0) {
+      html += `<div class="section-block"><div class="section-title">Materials</div>
+        <table><thead><tr><th>Description</th><th class="td-right">Qty</th><th>Unit</th><th class="td-right">Unit Cost</th><th class="td-right">Total</th></tr></thead>
+        <tbody>${materials.map(i => `<tr><td>${esc(i.description)}</td><td class="td-right">${i.quantity}</td><td class="td-muted">${esc(i.unit)}</td><td class="td-right">${fmt(i.unitCost)}</td><td class="td-right">${fmt(i.totalCost)}</td></tr>`).join('')}</tbody></table></div>`
+    }
+    if (labor.length > 0) {
+      html += `<div class="section-block"><div class="section-title">Labor</div>
+        <table><thead><tr><th>Trade</th><th class="td-right">Hours</th><th class="td-right">Workers</th><th class="td-right">Rate</th><th class="td-right">Total</th></tr></thead>
+        <tbody>${labor.map(i => `<tr><td>${esc(i.trade)}${i.description ? ': '+esc(i.description) : ''}</td><td class="td-right">${i.hours}h</td><td class="td-right">${i.workers}</td><td class="td-right">${fmt(i.rate)}/hr</td><td class="td-right">${fmt(i.total)}</td></tr>`).join('')}</tbody></table></div>`
+    }
+  }
+
+  // Permits
+  if (est.permitsItems && est.permitsItems.length > 0) {
+    html += `<div class="section-block"><div class="section-title">Permits & Fees</div>
+      <table><thead><tr><th>Description</th><th class="td-right">Amount</th></tr></thead>
+      <tbody>${est.permitsItems.map(i => `<tr><td>${esc(i.description)}</td><td class="td-right">${fmt(i.totalCost)}</td></tr>`).join('')}</tbody></table></div>`
+  }
+
+  // Totals
+  html += `<div class="totals-section">`
+  const totals = [
+    ['Materials', est.materialsCost],
+    ['Labor', est.laborCost],
+    est.equipmentCost > 0 ? ['Equipment', est.equipmentCost] : null,
+    est.permitsCost > 0 ? ['Permits & Fees', est.permitsCost] : null,
+    est.contingencyAmount > 0 ? [`Contingency (${est.contingencyPercent}%)`, est.contingencyAmount] : null,
+    ['Subtotal', est.subtotal],
+    est.markupAmount > 0 ? [`Markup (${est.markupPercent}%)`, est.markupAmount] : null,
+    est.taxAmount > 0 ? [`Tax (${est.taxPercent}%)`, est.taxAmount] : null,
+  ].filter(Boolean)
+  totals.forEach(([label, val]) => {
+    html += `<div class="total-row"><span>${label}</span><span>${fmt(val)}</span></div>`
+  })
+  html += `<div class="total-row grand"><span>TOTAL</span><span>${fmt(est.grandTotal)}</span></div>`
+  html += `</div>`
+
+  return html
+}
+
+// ─── Export CSV ────────────────────────────────────
+function exportCSV() {
+  if (!currentEstimate) return
+  const est = currentEstimate
+  const rows = []
+
+  const q = s => '"' + String(s || '').replace(/"/g, '""') + '"'
+  const c = v => (v || 0).toFixed(2)
+
+  rows.push([q('Estimate'), q(est.name)].join(','))
+  rows.push([q('Date'), q(fmtDate(est.createdDate))].join(','))
+  rows.push('')
+  rows.push([q('Section'), q('Type'), q('Description'), q('Qty'), q('Unit'), q('Unit Cost'), q('Total')].join(','))
+
+  if (est.sections && est.sections.length > 0) {
+    for (const sec of est.sections) {
+      for (const i of sec.materialItems || []) {
+        rows.push([q(sec.name), q('Material'), q(i.description), i.quantity.toFixed(2), q(i.unit), c(i.unitCost), c(i.totalCost)].join(','))
+      }
+      for (const i of sec.laborItems || []) {
+        const desc = i.trade + (i.description ? ': ' + i.description : '')
+        rows.push([q(sec.name), q('Labor'), q(desc), i.hours.toFixed(2), q('hrs'), c(i.rate), c(i.total)].join(','))
+      }
+    }
+  } else {
+    for (const i of est.lineItems || []) {
+      rows.push([q(i.category || 'Material'), q('Material'), q(i.description), i.quantity.toFixed(2), q(i.unit), c(i.unitCost), c(i.totalCost)].join(','))
+    }
+    for (const i of est.laborItems || []) {
+      rows.push([q('Labor'), q('Labor'), q(i.trade + (i.description ? ': '+i.description : '')), i.hours.toFixed(2), q('hrs'), c(i.rate), c(i.total)].join(','))
+    }
+  }
+
+  rows.push('')
+  const totalRows = [
+    ['Materials', est.materialsCost],
+    ['Labor', est.laborCost],
+    est.equipmentCost > 0 ? ['Equipment', est.equipmentCost] : null,
+    est.permitsCost > 0 ? ['Permits & Fees', est.permitsCost] : null,
+    est.contingencyAmount > 0 ? [`Contingency (${est.contingencyPercent}%)`, est.contingencyAmount] : null,
+    ['Subtotal', est.subtotal],
+    est.markupAmount > 0 ? [`Markup (${est.markupPercent}%)`, est.markupAmount] : null,
+    est.taxAmount > 0 ? [`Tax (${est.taxPercent}%)`, est.taxAmount] : null,
+    ['TOTAL', est.grandTotal],
+  ].filter(Boolean)
+  totalRows.forEach(([label, val]) => rows.push(',,,,,' + q(label) + ',' + c(val)))
+
+  const csv = rows.join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = (est.name || 'estimate').replace(/[^a-zA-Z0-9 ]/g, '').trim() + '.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+</script>
+</body>
+</html>

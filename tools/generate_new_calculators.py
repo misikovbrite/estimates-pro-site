@@ -337,9 +337,10 @@ def cost_vs_avg(m):
 def labor_range(m):
     return round(45 * m), round(90 * m)
 
-def build_slugified(city_or_none, proj):
+def build_slugified(city_or_none, proj, city_data=None):
     if city_or_none:
-        return f"{proj['slug']}-cost-{CITIES[city_or_none]['slug']}"
+        slug = (city_data or CITIES.get(city_or_none, {})).get("slug", city_or_none.lower().replace(" ", "-"))
+        return f"{proj['slug']}-cost-{slug}"
     return f"{proj['slug']}-cost-calculator"
 
 def make_tokens(city_name, city_data, proj):
@@ -455,7 +456,7 @@ def generate_page(city_name, city_data, proj_key, proj):
     tok = make_tokens(city_name, city_data, proj)
     m = city_data["cost_mult"] if city_data else 1.0
     is_city = bool(city_name)
-    canon_slug = build_slugified(city_name, proj)
+    canon_slug = build_slugified(city_name, proj, city_data)
     canon_url = f"https://estimates-pro.com/tools/{canon_slug}/"
 
     page_title = proj["title_tmpl"].format(**tok)

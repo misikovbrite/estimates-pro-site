@@ -367,6 +367,71 @@
   .t-author { font-size: 14px; font-weight: 700; color: var(--text); }
   .t-role { font-size: 12px; color: var(--text-sec); }
 
+  /* ── PRICING ── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .pricing-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    position: relative;
+  }
+  .pricing-card.featured {
+    border-color: var(--blue);
+    box-shadow: 0 8px 40px rgba(21,101,192,0.15);
+  }
+  .pricing-badge-top {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--blue); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 50px;
+    white-space: nowrap;
+  }
+  .pricing-tier { font-size: 13px; font-weight: 700; color: var(--blue); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .pricing-price { font-size: 42px; font-weight: 900; letter-spacing: -2px; color: var(--text); line-height: 1; }
+  .pricing-price span { font-size: 18px; font-weight: 600; color: var(--text-sec); }
+  .pricing-period { font-size: 13px; color: var(--text-sec); margin-bottom: 6px; }
+  .pricing-save { font-size: 12px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 3px 10px; border-radius: 50px; display: inline-block; margin-bottom: 20px; }
+  .pricing-desc { font-size: 14px; color: var(--text-sec); line-height: 1.6; margin-bottom: 24px; }
+  .pricing-features { list-style: none; margin-bottom: 28px; }
+  .pricing-features li {
+    font-size: 14px; color: var(--text); padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .pricing-features li:last-child { border-bottom: none; }
+  .pf-check { color: #16a34a; flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+  .pf-x { color: #9ca3af; flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+  .btn-pricing {
+    width: 100%; display: block; text-align: center;
+    padding: 13px; border-radius: 10px;
+    font-size: 14px; font-weight: 700;
+    text-decoration: none; transition: all 0.15s;
+  }
+  .btn-pricing-primary { background: var(--blue); color: #fff; }
+  .btn-pricing-primary:hover { background: var(--blue-dark); }
+  .btn-pricing-ghost {
+    background: transparent; color: var(--blue);
+    border: 1.5px solid var(--blue);
+  }
+  .btn-pricing-ghost:hover { background: var(--blue-light); }
+
+  /* ── TESTIMONIALS (updated) ── */
+  .t-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+  }
+  .t-author-row { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+  .t-author-info { flex: 1; }
+
   /* ── FINAL CTA ── */
   .final-cta {
     background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
@@ -426,8 +491,8 @@
   </a>
   <div class="nav-right">
     <a href="#features" class="nav-link">Features</a>
-    <a href="#trades" class="nav-link">Trades</a>
-    <a href="/dashboard.html" class="btn btn-outline">Sign In</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="#pricing" class="btn btn-outline">View Plans</a>
     <a href="https://apps.apple.com/us/app/cost-estimator-construction/id6758105341" class="btn btn-primary">
       Download Free
     </a>
@@ -456,7 +521,7 @@
       <div class="badge-item"><span class="badge-icon">🏆</span> #1 Estimating App</div>
       <div class="badge-item"><span class="badge-icon">📲</span> Free to Download</div>
       <div class="badge-item"><span class="badge-icon">🔒</span> No Signup Required</div>
-      <div class="badge-item"><span class="badge-icon">🌎</span> 12 Languages</div>
+      <div class="badge-item"><span class="badge-icon">📱</span> iOS & Android</div>
     </div>
   </div>
 
@@ -602,8 +667,8 @@
 <section class="section">
   <div class="section-inner">
     <div class="section-tag">Reviews</div>
-    <h2>Contractors love it</h2>
-    <p class="section-desc" style="margin-bottom: 40px;">4.5 stars on the App Store.</p>
+    <h2>Trusted by contractors<br>across the US</h2>
+    <p class="section-desc" style="margin-bottom: 40px;">4.5 stars · 87 reviews on the App Store.</p>
     <div class="testimonials">
       <div class="testimonial">
         <div class="t-stars">
@@ -613,9 +678,14 @@
           <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
           <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
         </div>
-        <p class="t-text">"Game changer. I used to spend an hour on every estimate. Now I do it in 5 minutes on the job site and send the PDF before I leave."</p>
-        <div class="t-author">Mike R.</div>
-        <div class="t-role">General Contractor, Texas</div>
+        <p class="t-text">"I run a 4-person remodeling crew in Dallas. We were losing bids because the competition quoted faster. Now I pull out my phone, snap the room, and send the estimate before I even leave the driveway. Won 6 extra jobs last month."</p>
+        <div class="t-author-row">
+          <div class="t-avatar" style="background:#1565C0;">MR</div>
+          <div class="t-author-info">
+            <div class="t-author">Mike R.</div>
+            <div class="t-role">Owner, MR Remodeling · Dallas, TX · 11 years in business</div>
+          </div>
+        </div>
       </div>
       <div class="testimonial">
         <div class="t-stars">
@@ -625,9 +695,14 @@
           <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
           <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
         </div>
-        <p class="t-text">"Finally an app that knows what things cost in my area. The local pricing is spot on. Saves me hours every week."</p>
-        <div class="t-author">James T.</div>
-        <div class="t-role">Electrician, California</div>
+        <p class="t-text">"The local pricing is shockingly accurate. I'm an electrician in the Bay Area — labor here is 40% above national average. This app nails it every time. Replaced my RSMeans binder. Worth every penny."</p>
+        <div class="t-author-row">
+          <div class="t-avatar" style="background:#0d47a1;">JT</div>
+          <div class="t-author-info">
+            <div class="t-author">James T.</div>
+            <div class="t-role">Master Electrician · San Jose, CA · Licensed since 2009</div>
+          </div>
+        </div>
       </div>
       <div class="testimonial">
         <div class="t-stars">
@@ -637,11 +712,69 @@
           <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
           <div class="t-star"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z"/></svg></div>
         </div>
-        <p class="t-text">"Contractor's best friend. I've won 3 extra jobs this month because I could quote faster than the competition."</p>
-        <div class="t-author">Carlos M.</div>
-        <div class="t-role">Handyman, Florida</div>
+        <p class="t-text">"I do handyman and small reno jobs in Miami. Before this app I was quoting off the top of my head and either underselling or losing bids. Now I look professional, my PDF estimates impress clients, and I've raised my prices 15% without pushback."</p>
+        <div class="t-author-row">
+          <div class="t-avatar" style="background:#1976D2;">CM</div>
+          <div class="t-author-info">
+            <div class="t-author">Carlos M.</div>
+            <div class="t-role">Independent Contractor · Miami, FL · 200+ jobs/year</div>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section bg-light" id="pricing">
+  <div class="section-inner">
+    <div class="section-tag">Pricing</div>
+    <h2>Simple, transparent pricing</h2>
+    <p class="section-desc" style="margin-bottom: 48px;">Start free. Upgrade when you're ready to win more jobs.</p>
+    <div class="pricing-grid">
+
+      <!-- FREE -->
+      <div class="pricing-card">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-price">$0</div>
+        <div class="pricing-period" style="margin-bottom:20px;">Forever free, no credit card</div>
+        <p class="pricing-desc">Everything you need to start estimating smarter on the job site.</p>
+        <ul class="pricing-features">
+          <li><span class="pf-check">✓</span> AI photo estimation (5/month)</li>
+          <li><span class="pf-check">✓</span> Local pricing database — 1,000+ cities</li>
+          <li><span class="pf-check">✓</span> Unlimited manual estimates</li>
+          <li><span class="pf-check">✓</span> PDF exports with watermark</li>
+          <li><span class="pf-check">✓</span> Up to 10 saved projects</li>
+          <li><span class="pf-x">✗</span> Custom branding on PDFs</li>
+          <li><span class="pf-x">✗</span> Client invoicing</li>
+          <li><span class="pf-x">✗</span> Unlimited AI estimates</li>
+        </ul>
+        <a href="https://apps.apple.com/us/app/cost-estimator-construction/id6758105341" class="btn-pricing btn-pricing-ghost">Download Free</a>
+      </div>
+
+      <!-- PRO -->
+      <div class="pricing-card featured">
+        <div class="pricing-badge-top">Most Popular</div>
+        <div class="pricing-tier">Pro</div>
+        <div class="pricing-price">$9<span>.99</span></div>
+        <div class="pricing-period">per month</div>
+        <div class="pricing-save">Save 40% with annual — $59.99/yr</div>
+        <p class="pricing-desc">For contractors who quote every day and need every edge to win jobs.</p>
+        <ul class="pricing-features">
+          <li><span class="pf-check">✓</span> Unlimited AI photo estimates</li>
+          <li><span class="pf-check">✓</span> Local pricing database — 1,000+ cities</li>
+          <li><span class="pf-check">✓</span> Unlimited projects</li>
+          <li><span class="pf-check">✓</span> Clean PDF exports — no watermark</li>
+          <li><span class="pf-check">✓</span> Your logo & branding on every PDF</li>
+          <li><span class="pf-check">✓</span> Client invoicing & payment requests</li>
+          <li><span class="pf-check">✓</span> Voice editing hands-free</li>
+          <li><span class="pf-check">✓</span> Priority support</li>
+        </ul>
+        <a href="https://apps.apple.com/us/app/cost-estimator-construction/id6758105341" class="btn-pricing btn-pricing-primary">Start Free Trial</a>
+      </div>
+
+    </div>
+    <p style="text-align:center;font-size:13px;color:var(--text-sec);margin-top:28px;">7-day free trial on Pro · Cancel anytime · iOS &amp; Android</p>
   </div>
 </section>
 

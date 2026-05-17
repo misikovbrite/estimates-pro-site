@@ -152,14 +152,14 @@
       <div class="calc-section">
         <h3>Scope of Work</h3>
         <div class="item-list">
-          <label class="item-row"><input type="checkbox" id="cb_0" checked onchange="update()"><span class="item-label">Standard 1/2" drywall (walls)</span><span class="item-cost">$1.78/sqft</span></label>
-          <label class="item-row"><input type="checkbox" id="cb_1"  onchange="update()"><span class="item-label">5/8" Type X fire-rated drywall</span><span class="item-cost">$2.30/sqft</span></label>
-          <label class="item-row"><input type="checkbox" id="cb_2"  onchange="update()"><span class="item-label">Moisture-resistant (bathrooms)</span><span class="item-cost">$2.50/sqft</span></label>
-          <label class="item-row"><input type="checkbox" id="cb_3" checked onchange="update()"><span class="item-label">Ceiling drywall installation</span><span class="item-cost">$2.11/sqft</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_0" checked onchange="update()"><span class="item-label">Standard 1/2" drywall (walls)</span><span class="item-cost">$1.76/sqft</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_1"  onchange="update()"><span class="item-label">5/8" Type X fire-rated drywall</span><span class="item-cost">$2.28/sqft</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_2"  onchange="update()"><span class="item-label">Moisture-resistant (bathrooms)</span><span class="item-cost">$2.47/sqft</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_3" checked onchange="update()"><span class="item-label">Ceiling drywall installation</span><span class="item-cost">$2.09/sqft</span></label>
           <label class="item-row"><input type="checkbox" id="cb_4" checked onchange="update()"><span class="item-label">Taping & mudding (joints)</span><span class="item-cost">$0.86/sqft</span></label>
-          <label class="item-row"><input type="checkbox" id="cb_5" checked onchange="update()"><span class="item-label">Finishing (Level 4 smooth)</span><span class="item-cost">$0.67/sqft</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_5" checked onchange="update()"><span class="item-label">Finishing (Level 4 smooth)</span><span class="item-cost">$0.66/sqft</span></label>
           <label class="item-row"><input type="checkbox" id="cb_6" checked onchange="update()"><span class="item-label">Corner bead & trim</span><span class="item-cost">$300</span></label>
-          <label class="item-row"><input type="checkbox" id="cb_7"  onchange="update()"><span class="item-label">Texture (knockdown/orange peel)</span><span class="item-cost">$0.53/sqft</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_7"  onchange="update()"><span class="item-label">Texture (knockdown/orange peel)</span><span class="item-cost">$0.52/sqft</span></label>
           <label class="item-row"><input type="checkbox" id="cb_8"  onchange="update()"><span class="item-label">Priming & painting prep</span><span class="item-cost">$0.43/sqft</span></label>
           <label class="item-row"><input type="checkbox" id="cb_9"  onchange="update()"><span class="item-label">Repair & patch existing drywall</span><span class="item-cost">$250</span></label>
         </div>
@@ -199,7 +199,7 @@
       <h3>Frequently Asked Questions</h3>
       <div class="faq-item">
         <div class="faq-q">How much does drywall installation cost in McKinney? <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
-        <div class="faq-a">Drywall installation in McKinney costs $1,400–$8,600 for a typical room. Most homeowners pay around $3,600 for a standard bedroom or living room. Full house drywall can range $8,000–$17,500.</div>
+        <div class="faq-a">Drywall installation in McKinney costs $1,400–$8,600 for a typical room. Most homeowners pay around $3,600 for a standard bedroom or living room. Full house drywall can range $8,000–$17,000.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">How much does drywall cost per square foot in McKinney? <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -235,7 +235,7 @@
       <div class="result-body">
         <div class="breakdown-row"><span class="breakdown-label">Materials</span><span class="breakdown-val" id="matDisplay">$0</span></div>
         <div class="breakdown-row"><span class="breakdown-label">Labor</span><span class="breakdown-val" id="laborDisplay">$0</span></div>
-        <div class="breakdown-row"><span class="breakdown-label">City multiplier</span><span class="breakdown-val">0.96x</span></div>
+        <div class="breakdown-row"><span class="breakdown-label">City multiplier</span><span class="breakdown-val">0.95x</span></div>
         <div class="app-promo">
           <p>Want a full itemized estimate? Use the free app:</p>
           <div class="store-btns">
@@ -266,8 +266,8 @@
 </footer>
 
 <script>
-const ITEMS = [{"id": 0, "base": 1.78, "is_rate": true}, {"id": 1, "base": 2.3, "is_rate": true}, {"id": 2, "base": 2.5, "is_rate": true}, {"id": 3, "base": 2.11, "is_rate": true}, {"id": 4, "base": 0.86, "is_rate": true}, {"id": 5, "base": 0.67, "is_rate": true}, {"id": 6, "base": 300.0, "is_rate": false}, {"id": 7, "base": 0.53, "is_rate": true}, {"id": 8, "base": 0.43, "is_rate": true}, {"id": 9, "base": 250.0, "is_rate": false}];
-const CITY_MULT = 0.96;
+const ITEMS = [{"id": 0, "base": 1.76, "is_rate": true}, {"id": 1, "base": 2.28, "is_rate": true}, {"id": 2, "base": 2.47, "is_rate": true}, {"id": 3, "base": 2.09, "is_rate": true}, {"id": 4, "base": 0.86, "is_rate": true}, {"id": 5, "base": 0.66, "is_rate": true}, {"id": 6, "base": 300.0, "is_rate": false}, {"id": 7, "base": 0.52, "is_rate": true}, {"id": 8, "base": 0.43, "is_rate": true}, {"id": 9, "base": 250.0, "is_rate": false}];
+const CITY_MULT = 0.95;
 const SQFT_BASE = 800;
 let qualityMult = 1.0;
 

@@ -153,8 +153,8 @@
         <h3>Scope of Work</h3>
         <div class="item-list">
           <label class="item-row"><input type="checkbox" id="cb_0" checked onchange="update()"><span class="item-label">Gas tank water heater (40–50 gal)</span><span class="item-cost">$800</span></label>
-          <label class="item-row"><input type="checkbox" id="cb_1"  onchange="update()"><span class="item-label">Electric tank water heater (50 gal)</span><span class="item-cost">$550</span></label>
-          <label class="item-row"><input type="checkbox" id="cb_2"  onchange="update()"><span class="item-label">Gas tankless water heater</span><span class="item-cost">$1,800</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_1"  onchange="update()"><span class="item-label">Electric tank water heater (50 gal)</span><span class="item-cost">$600</span></label>
+          <label class="item-row"><input type="checkbox" id="cb_2"  onchange="update()"><span class="item-label">Gas tankless water heater</span><span class="item-cost">$1,850</span></label>
           <label class="item-row"><input type="checkbox" id="cb_3"  onchange="update()"><span class="item-label">Electric tankless water heater</span><span class="item-cost">$1,150</span></label>
           <label class="item-row"><input type="checkbox" id="cb_4"  onchange="update()"><span class="item-label">Heat pump water heater</span><span class="item-cost">$2,300</span></label>
           <label class="item-row"><input type="checkbox" id="cb_5" checked onchange="update()"><span class="item-label">Installation labor</span><span class="item-cost">$500</span></label>
@@ -192,7 +192,7 @@
       </table>
 
       <h3>What Affects Water Heater Replacement Costs in Killeen?</h3>
-      <p><strong>Labor rates:</strong> Contractors in Killeen charge $37–$74/hour for water heater replacement work — notably below the national average.</p>
+      <p><strong>Labor rates:</strong> Contractors in Killeen charge $37–$75/hour for water heater replacement work — notably below the national average.</p>
       <p><strong>Material costs:</strong> Material prices in the South region are notably below national average due to local supply, transportation costs, and market demand.</p>
       <p><strong>Project complexity:</strong> Site conditions, permitting requirements, and non-standard layouts can add 15–30% to total project cost.</p>
 
@@ -235,7 +235,7 @@
       <div class="result-body">
         <div class="breakdown-row"><span class="breakdown-label">Materials</span><span class="breakdown-val" id="matDisplay">$0</span></div>
         <div class="breakdown-row"><span class="breakdown-label">Labor</span><span class="breakdown-val" id="laborDisplay">$0</span></div>
-        <div class="breakdown-row"><span class="breakdown-label">City multiplier</span><span class="breakdown-val">0.82x</span></div>
+        <div class="breakdown-row"><span class="breakdown-label">City multiplier</span><span class="breakdown-val">0.83x</span></div>
         <div class="app-promo">
           <p>Want a full itemized estimate? Use the free app:</p>
           <div class="store-btns">
@@ -266,8 +266,8 @@
 </footer>
 
 <script>
-const ITEMS = [{"id": 0, "base": 800.0, "is_rate": false}, {"id": 1, "base": 550.0, "is_rate": false}, {"id": 2, "base": 1800.0, "is_rate": false}, {"id": 3, "base": 1150.0, "is_rate": false}, {"id": 4, "base": 2300.0, "is_rate": false}, {"id": 5, "base": 500.0, "is_rate": false}, {"id": 6, "base": 100.0, "is_rate": false}, {"id": 7, "base": 200.0, "is_rate": false}, {"id": 8, "base": 350.0, "is_rate": false}, {"id": 9, "base": 150.0, "is_rate": false}];
-const CITY_MULT = 0.82;
+const ITEMS = [{"id": 0, "base": 800.0, "is_rate": false}, {"id": 1, "base": 600.0, "is_rate": false}, {"id": 2, "base": 1850.0, "is_rate": false}, {"id": 3, "base": 1150.0, "is_rate": false}, {"id": 4, "base": 2300.0, "is_rate": false}, {"id": 5, "base": 500.0, "is_rate": false}, {"id": 6, "base": 100.0, "is_rate": false}, {"id": 7, "base": 200.0, "is_rate": false}, {"id": 8, "base": 350.0, "is_rate": false}, {"id": 9, "base": 150.0, "is_rate": false}];
+const CITY_MULT = 0.83;
 const SQFT_BASE = 1800;
 let qualityMult = 1.0;
 
